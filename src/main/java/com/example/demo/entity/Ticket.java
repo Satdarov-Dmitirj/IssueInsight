@@ -38,7 +38,7 @@ public class Ticket {
     private LocalDateTime resolvedAt;
 
     @JoinColumn(name = "category_id", foreignKey = @ForeignKey(name = "fk_ticket_category"))
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY) //изучить
     private Category category;
     @Version
     private Long version;

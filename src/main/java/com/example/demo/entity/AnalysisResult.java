@@ -16,10 +16,15 @@ public class AnalysisResult {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ticket_id", nullable = false)
     private Ticket ticket;
     private String detectedCause;
     private String causeDescription;
-    double analiseScore;
-    LocalDateTime localDateTime;
+    private double analiseScore;
+    private LocalDateTime analiseDate = LocalDateTime.now();
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AnaliseMethod analiseMethod = AnaliseMethod.AUTOMATIC;
 
 }
