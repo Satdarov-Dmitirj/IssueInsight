@@ -26,5 +26,4 @@ public class AnalysisResult {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AnaliseMethod analiseMethod = AnaliseMethod.AUTOMATIC;
-
 }
