@@ -5,12 +5,14 @@ import com.example.demo.entity.Ticket;
 import com.example.demo.repository.AnalisRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+@Service
 
 public class AnalisService {
     static final Logger logger = LoggerFactory.getLogger(AnalisService.class);
@@ -133,5 +135,9 @@ public class AnalisService {
         }
 
         return discripriprion.toString();
+    }
+
+    public List <AnalysisResult> getAllTickets(){
+        return analisRepository.findAll();
     }
 }
