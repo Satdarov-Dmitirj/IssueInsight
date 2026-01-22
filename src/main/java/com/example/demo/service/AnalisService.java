@@ -102,7 +102,7 @@ public class AnalisService {
         }
 
 
-        AnalysisResult analysisResult = new AnalysisResult();
+        AnalysisResult analysisResult = new AnalysisResult(); // проверка
 
         analysisResult.setTicket(ticket);
         analysisResult.setDetectedCause(detectedCause);
