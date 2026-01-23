@@ -1,10 +1,13 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.AnalisResultRespouns;
 import com.example.demo.entity.AnalysisResult;
 import com.example.demo.entity.Ticket;
 import com.example.demo.repository.AnalisRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,8 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-@Service
 
+@Service
 public class AnalisService {
     static final Logger logger = LoggerFactory.getLogger(AnalisService.class);
     final AnalisRepository analisRepository;
@@ -113,31 +116,35 @@ public class AnalisService {
         return  analysisResult;
     }
 
-    private  String generateDescription(String cause, List <String> machedKeyWords, double confidenc){
+    private  String generateDescription(String cause, List <String> matchedKeywords, double confidence){
 
-        StringBuilder discripriprion = new StringBuilder();
-        discripriprion.append("Автоматическое определение причины " + cause);
+        StringBuilder description = new StringBuilder();
+        description.append("Автоматическое определение причины " + cause);
 
-        if (confidenc >= 70){
-            discripriprion.append("Высокая уверенность определения причины");
+        if (confidence >= 70){
+            description.append("Высокая уверенность определения причины");
 
-        } else if (confidenc >= 40) {
-            discripriprion.append("Средняя уверенность. Рекомендуется дополнительная проверка");
+        } else if (confidence >= 40) {
+            description.append("Средняя уверенность. Рекомендуется дополнительная проверка");
         }else{
-            discripriprion.append("Низкая уверенность");
+            description.append("Низкая уверенность");
         }
 
-        if (machedKeyWords.isEmpty() && machedKeyWords.size() <= 5){
-            discripriprion.append("Найдены ключевые слова");
-            discripriprion.append(String.join(" , " + machedKeyWords));
-            discripriprion.append(" . ");
+        if (matchedKeywords.isEmpty() && matchedKeywords.size() <= 5){
+            description.append("Найдены ключевые слова");
+            description.append(String.join(" , " + matchedKeywords));
+            description.append(" . ");
 
         }
 
-        return discripriprion.toString();
+        return description.toString();
     }
 
-    public List <AnalysisResult> getAllTickets(){
-        return analisRepository.findAll();
+    public Page<AnalysisResult> getAllTickets(Pageable pageable){
+        return analisRepository.findAll(pageable);
+    }
+
+    public List <AnalysisResult> getTicketAnalysisById (Long id){
+        return analisRepository.findByTicketId(id); // повторить
     }
 }

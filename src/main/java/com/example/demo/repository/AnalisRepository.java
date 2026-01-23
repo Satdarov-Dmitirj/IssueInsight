@@ -9,4 +9,7 @@ import java.util.List;
 
 public interface  AnalisRepository extends JpaRepository <AnalysisResult, Long> {
     //List <AnalisisReSut>
+    List <AnalysisResult> findByTicketId(Long ticketId);
+
+    List<AnalysisResult> id(Long id);
 }

@@ -1,6 +1,7 @@
 package com.example.demo.dto;
 
 import com.example.demo.entity.AnaliseMethod;
+import com.example.demo.entity.AnalysisResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,4 +20,12 @@ public class AnalisResultRespouns {
     private LocalDateTime analiseDate;
     private AnaliseMethod analiseMethod;
 
+    public static AnalisResultRespouns fromEntity(AnalysisResult analysisResult){
+        return new AnalisResultRespouns(analysisResult.getId(),
+                analysisResult.getDetectedCause(),
+                analysisResult.getCauseDescription(),
+                analysisResult.getAnaliseScore(),
+                analysisResult.getAnaliseDate(),
+                analysisResult.getAnaliseMethod());
+    }
 }
