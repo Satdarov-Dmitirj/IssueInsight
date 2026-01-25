@@ -10,37 +10,35 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "tickets")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-@Table(name = "tickets")
 public class Ticket {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
+
     private String subject;
-    @Column
     private String description;
-    @Column
     private String customerEmail;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    TicketStatus ticketStatus =  TicketStatus.OPEN;
+    private TicketStatus ticketStatus = TicketStatus.OPEN;
 
-    @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
+
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
     private LocalDateTime resolvedAt;
 
-    @JoinColumn(name = "category_id", foreignKey = @ForeignKey(name = "fk_ticket_category"))
-    @ManyToOne(fetch = FetchType.LAZY) //изучить
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
     private Category category;
+
     @Version
     private Long version;
-
 }
