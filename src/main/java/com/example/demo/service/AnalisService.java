@@ -103,4 +103,8 @@ public class AnalisService {
     public List<AnalysisResult> getTicketAnalysisById(Long id) {
         return analisRepository.findByTicketId(id);
     }
+
+    public AnalysisResult saveResult(AnalysisResult analysisResult){
+        return  analisRepository.save(analysisResult);
+    }
 }

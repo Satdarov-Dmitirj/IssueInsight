@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.AnalisResultRespouns;
+import com.example.demo.dto.TicketCreateRequest;
 import com.example.demo.entity.*;
 import com.example.demo.repository.AnalisRepository;
 import com.example.demo.repository.CategoryRepository;
@@ -8,8 +9,10 @@ import com.example.demo.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -20,9 +23,33 @@ public class TicketService {
     private final AnalisRepository analisRepository;
     private final AnalisService analisService;
 
-    public Ticket createTicket(Ticket ticket) {
-        return ticketRepository.save(ticket);
+    public Ticket createTicket(TicketCreateRequest ticketCreateRequest) {
+
+        Ticket ticket = new Ticket();
+        ticket.setSubject(ticketCreateRequest.getSubject());
+        ticket.setDescription(ticketCreateRequest.getDescription());
+        ticket.setCustomerEmail(ticketCreateRequest.getEmail());
+        ticket.setTicketStatus(TicketStatus.OPEN);
+        ticket.setCreatedAt(LocalDateTime.now());
+
+        Ticket savedTicket = ticketRepository.save(ticket);
+
+        AnalysisResult analysisResult = analisService.analysisTicket(savedTicket);
+
+        Category category = categoryRepository
+                .findByName(analysisResult.getDetectedCause())
+                .orElseGet(() -> {
+                    Category newCategory = new Category();
+                    newCategory.setName(analysisResult.getDetectedCause());
+                    newCategory.setDescription("Автоматически созданная категория");
+                    return categoryRepository.save(newCategory);
+                });
+
+        savedTicket.setCategory(category);
+
+        return ticketRepository.save(savedTicket);
     }
+
 
     public Optional<Ticket> getTicketById(Long id) {
         return ticketRepository.findById(id);
