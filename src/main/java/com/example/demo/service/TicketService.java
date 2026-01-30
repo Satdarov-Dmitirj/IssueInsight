@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.AnalisResultRespouns;
+import com.example.demo.dto.TicketCreateRequest;
 import com.example.demo.entity.*;
 import com.example.demo.mapper.AnalysisResultMapper;
 import com.example.demo.repository.AnalisRepository;
@@ -24,7 +25,11 @@ public class TicketService implements TicketServiceInterface {
     private final AnalisService analisService;
 
     @Override
-    public Ticket createTicket(Ticket ticket) {
+    public Ticket createTicket(TicketCreateRequest ticketCreateRequest) {
+        Ticket ticket = new Ticket();
+        ticket.setSubject(ticketCreateRequest.getSubject());
+        ticket.setCustomerEmail(ticketCreateRequest.getEmail());
+        ticket.setDescription(ticketCreateRequest.getDescription());
         ticket.setTicketStatus(TicketStatus.OPEN);
         ticket.setCreatedAt(LocalDateTime.now());
 

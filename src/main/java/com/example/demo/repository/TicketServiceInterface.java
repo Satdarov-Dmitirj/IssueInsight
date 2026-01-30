@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.dto.AnalisResultRespouns;
+import com.example.demo.dto.TicketCreateRequest;
 import com.example.demo.entity.AnalysisResult;
 import com.example.demo.entity.Category;
 import com.example.demo.entity.Ticket;
@@ -11,7 +12,7 @@ import java.util.Optional;
 
 public interface TicketServiceInterface {
 
-    Ticket createTicket(Ticket ticket);
+    Ticket createTicket(TicketCreateRequest ticketCreateRequest);
 
     Optional<Ticket> getTicketById(Long id);
 

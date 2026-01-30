@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.TicketCreateRequest;
 import com.example.demo.entity.AnaliseMethod;
 import com.example.demo.entity.AnalysisResult;
 import com.example.demo.entity.Ticket;
@@ -42,10 +43,10 @@ public class AnalisService {
         ));
     }
 
-    public AnalysisResult analysisTicket(Ticket ticket) {
+    public AnalysisResult analysisTicket(Ticket ticketCreateRequest) {
 
-        String text = (ticket.getSubject() + " " + ticket.getDescription()).toLowerCase();
-        logger.debug("Analyzing ticket", ticket.getId());
+        String text = (ticketCreateRequest.getSubject() + " " + ticketCreateRequest.getDescription()).toLowerCase();
+        logger.debug("Analyzing ticket", ticketCreateRequest.getId());
 
         Map<String, Double> causeScores = new HashMap<>();
 
@@ -88,7 +89,7 @@ public class AnalisService {
         }
 
         AnalysisResult result = new AnalysisResult();
-        result.setTicket(ticket);
+        result.setTicket(ticketCreateRequest);
         result.setDetectedCause(detectedCause);
         result.setCauseDescription(description);
         result.setAnaliseScore(confidence);
