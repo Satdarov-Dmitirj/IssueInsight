@@ -1,27 +1,23 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.AnalisResultRespouns;
-import com.example.demo.service.AnalisService;
+import com.example.demo.service.TicketService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/tickets")
+@RequestMapping("tickets")
 public class AnalisController {
 
-    private final AnalisService analisService;
+    private final TicketService ticketService;
 
-    public AnalisController(AnalisService analisService) {
-        this.analisService = analisService;
+    public AnalisController(TicketService ticketService) {
+        this.ticketService = ticketService;
     }
 
     @GetMapping("/{id}/analysis")
     public List<AnalisResultRespouns> getAllAnalysisTicket(@PathVariable Long id) {
-        return analisService.getTicketAnalysisById(id)
-                .stream()
-                .map(AnalisResultRespouns::fromEntity)
-                .collect(Collectors.toList());
+        return ticketService.getAnalysisResults(id);
     }
 }

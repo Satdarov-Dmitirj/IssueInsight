@@ -16,21 +16,26 @@ public class AnalysisResult {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "ticket_id")
+    @JoinColumn(name = "ticket_id", nullable = false)
     private Ticket ticket;
 
+    @Column(nullable = false, length = 255)
     private String detectedCause;
 
-    @Column(length = 500)
+    @Column(nullable = false, length = 500)
     private String causeDescription;
 
+    @Column(nullable = false)
     private double analiseScore;
 
+    @Column(nullable = false)
     private LocalDateTime analiseDate;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private AnaliseMethod analiseMethod;
 }

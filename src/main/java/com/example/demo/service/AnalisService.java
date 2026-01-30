@@ -11,7 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class AnalisService {
@@ -43,11 +45,11 @@ public class AnalisService {
     public AnalysisResult analysisTicket(Ticket ticket) {
 
         String text = (ticket.getSubject() + " " + ticket.getDescription()).toLowerCase();
-        logger.debug("Analyzing ticket {}", ticket.getId());
+        logger.debug("Analyzing ticket", ticket.getId());
 
         Map<String, Double> causeScores = new HashMap<>();
 
-        for (var entry : CAUSE_KEYWORDS.entrySet()) {
+        for (Map.Entry<String, Map<String, Double>> entry : CAUSE_KEYWORDS.entrySet()) {
 
             String cause = entry.getKey();
             Map<String, Double> keywords = entry.getValue();
@@ -55,7 +57,7 @@ public class AnalisService {
             double score = 0;
             double maxScore = keywords.values().stream().mapToDouble(Double::doubleValue).sum();
 
-            for (var keywordEntry : keywords.entrySet()) {
+            for (Map.Entry<String, Double> keywordEntry : keywords.entrySet()) {
                 if (text.contains(keywordEntry.getKey())) {
                     score += keywordEntry.getValue();
                 }
@@ -75,7 +77,7 @@ public class AnalisService {
             confidence = 10;
             description = "Автоматически не удалось определить причину. Требуется ручной анализ.";
         } else {
-            var best = causeScores.entrySet()
+            Map.Entry<String, Double> best = causeScores.entrySet()
                     .stream()
                     .max(Map.Entry.comparingByValue())
                     .orElseThrow();
@@ -105,6 +107,6 @@ public class AnalisService {
     }
 
     public AnalysisResult saveResult(AnalysisResult analysisResult){
-        return  analisRepository.save(analysisResult);
+        return analisRepository.save(analysisResult);
     }
 }

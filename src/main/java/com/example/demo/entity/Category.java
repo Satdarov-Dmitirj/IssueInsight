@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "categories")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,12 +19,12 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 100)
     private String name;
 
-    @Column()
+    @Column(length = 255)
     private String description;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    List <Ticket> ticket = new ArrayList<>();
+    private List<Ticket> tickets = new ArrayList<>();
 }

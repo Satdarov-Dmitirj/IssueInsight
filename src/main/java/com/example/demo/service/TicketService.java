@@ -1,11 +1,12 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.AnalisResultRespouns;
-import com.example.demo.dto.TicketCreateRequest;
 import com.example.demo.entity.*;
+import com.example.demo.mapper.AnalysisResultMapper;
 import com.example.demo.repository.AnalisRepository;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.TicketRepository;
+import com.example.demo.repository.TicketServiceInterface;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,22 +14,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-
 @Service
 @RequiredArgsConstructor
-public class TicketService {
+public class TicketService implements TicketServiceInterface {
 
     private final TicketRepository ticketRepository;
     private final CategoryRepository categoryRepository;
     private final AnalisRepository analisRepository;
     private final AnalisService analisService;
 
-    public Ticket createTicket(TicketCreateRequest ticketCreateRequest) {
-
-        Ticket ticket = new Ticket();
-        ticket.setSubject(ticketCreateRequest.getSubject());
-        ticket.setDescription(ticketCreateRequest.getDescription());
-        ticket.setCustomerEmail(ticketCreateRequest.getEmail());
+    @Override
+    public Ticket createTicket(Ticket ticket) {
         ticket.setTicketStatus(TicketStatus.OPEN);
         ticket.setCreatedAt(LocalDateTime.now());
 
@@ -50,15 +46,17 @@ public class TicketService {
         return ticketRepository.save(savedTicket);
     }
 
-
+    @Override
     public Optional<Ticket> getTicketById(Long id) {
         return ticketRepository.findById(id);
     }
 
+    @Override
     public List<Ticket> getAllTickets() {
         return ticketRepository.findAll();
     }
 
+    @Override
     public Ticket updateTicket(Long id, Ticket updatedTicket) {
         return ticketRepository.findById(id)
                 .map(ticket -> {
@@ -72,10 +70,12 @@ public class TicketService {
                 .orElseThrow(() -> new RuntimeException("Тикет с id " + id + " не найден"));
     }
 
+    @Override
     public void deleteTicket(Long id) {
         ticketRepository.deleteById(id);
     }
 
+    @Override
     public Ticket changeTicketStatus(Long id, TicketStatus status) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Тикет с id " + id + " не найден"));
@@ -83,23 +83,25 @@ public class TicketService {
         ticket.setTicketStatus(status);
 
         if (status == TicketStatus.CLOSED) {
-            ticket.setResolvedAt(java.time.LocalDateTime.now());
+            ticket.setResolvedAt(LocalDateTime.now());
         }
 
         return ticketRepository.save(ticket);
     }
 
+    @Override
     public Ticket closeTicket(Long id, String resolution) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Тикет с id " + id + " не найден"));
 
         ticket.setTicketStatus(TicketStatus.CLOSED);
-        ticket.setResolvedAt(java.time.LocalDateTime.now());
-        ticket.setDescription(ticket.getDescription() + "\n\nРешение: " + resolution);
+        ticket.setResolvedAt(LocalDateTime.now());
+        ticket.setDescription(ticket.getDescription() + "Решение: " + resolution);
 
         return ticketRepository.save(ticket);
     }
 
+    @Override
     public List<Ticket> getTicketsByCategory(Category category) {
         return ticketRepository.findAll()
                 .stream()
@@ -107,6 +109,7 @@ public class TicketService {
                 .toList();
     }
 
+    @Override
     public List<Ticket> getTicketsByStatus(TicketStatus status) {
         return ticketRepository.findAll()
                 .stream()
@@ -114,16 +117,18 @@ public class TicketService {
                 .toList();
     }
 
+    @Override
     public AnalysisResult analyzeTicket(Long ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Тикет с id " + ticketId + " не найден"));
         return analisService.analysisTicket(ticket);
     }
 
+    @Override
     public List<AnalisResultRespouns> getAnalysisResults(Long ticketId) {
         return analisRepository.findByTicketId(ticketId)
                 .stream()
-                .map(AnalisResultRespouns::fromEntity)
+                .map(AnalysisResultMapper.INSTANCE::toDto)
                 .toList();
     }
 }

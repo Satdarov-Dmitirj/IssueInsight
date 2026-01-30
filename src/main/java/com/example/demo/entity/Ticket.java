@@ -20,11 +20,17 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String subject;
+
+    @Column(nullable = false)
     private String description;
+
+    @Column(nullable = false)
     private String customerEmail;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TicketStatus ticketStatus = TicketStatus.OPEN;
 
     @CreationTimestamp
