@@ -2,9 +2,7 @@ package com.example.demo.repository;
 
 import com.example.demo.dto.AnalisResultRespouns;
 import com.example.demo.dto.TicketCreateRequest;
-import com.example.demo.entity.AnalysisResult;
-import com.example.demo.entity.Category;
-import com.example.demo.entity.Ticket;
+import com.example.demo.dto.TicketDto;
 import com.example.demo.entity.TicketStatus;
 
 import java.util.List;
@@ -12,25 +10,19 @@ import java.util.Optional;
 
 public interface TicketServiceInterface {
 
-    Ticket createTicket(TicketCreateRequest ticketCreateRequest);
+    TicketDto createTicket(TicketCreateRequest ticketCreateRequest);
 
-    Optional<Ticket> getTicketById(Long id);
+    Optional<TicketDto> getTicketById(Long id);
 
-    List<Ticket> getAllTickets();
+    List<TicketDto> getAllTickets();
 
-    Ticket updateTicket(Long id, Ticket updatedTicket);
+    TicketDto changeTicketStatus(Long id, TicketStatus status);
 
-    void deleteTicket(Long id);
+    TicketDto closeTicket(Long id, String resolution);
 
-    Ticket changeTicketStatus(Long id, TicketStatus status);
+    List<TicketDto> getTicketsByCategory(Long categoryId);
 
-    Ticket closeTicket(Long id, String resolution);
-
-    List<Ticket> getTicketsByCategory(Category category);
-
-    List<Ticket> getTicketsByStatus(TicketStatus status);
-
-    AnalysisResult analyzeTicket(Long ticketId);
+    List<TicketDto> getTicketsByStatus(TicketStatus status);
 
     List<AnalisResultRespouns> getAnalysisResults(Long ticketId);
 }

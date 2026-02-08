@@ -1,8 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.TicketCreateRequest;
-import com.example.demo.entity.Category;
-import com.example.demo.entity.Ticket;
+import com.example.demo.dto.TicketDto;
 import com.example.demo.entity.TicketStatus;
 import com.example.demo.repository.TicketServiceInterface;
 import lombok.RequiredArgsConstructor;
@@ -13,94 +12,54 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("tickets")
+@RequestMapping("/tickets")
 @RequiredArgsConstructor
 public class TicketController {
 
     private final TicketServiceInterface ticketService;
 
-    @PostMapping("create")
-    public ResponseEntity<Ticket> createTicket(@RequestBody TicketCreateRequest request) {
-        try {
-            Ticket createdTicket = ticketService.createTicket(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdTicket);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+    @PostMapping
+    public ResponseEntity<TicketDto> createTicket(
+            @RequestBody TicketCreateRequest request) {
+
+        TicketDto ticket = ticketService.createTicket(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ticket);
     }
 
-    @GetMapping("getById")
-    public ResponseEntity<Ticket> getTicket(@RequestParam Long id) {
-        try {
-            return ResponseEntity.ok(
-                    ticketService.getTicketById(id).orElseThrow()
-            );
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    @GetMapping("/id")
+    public TicketDto getTicket(@PathVariable Long id) {
+        return ticketService.getTicketById(id)
+                .orElseThrow(() -> new RuntimeException("Ticket not found"));
     }
 
-    @GetMapping("getAll")
-    public ResponseEntity<List<Ticket>> getAllTickets() {
-        try {
-            return ResponseEntity.ok(ticketService.getAllTickets());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    @GetMapping
+    public List<TicketDto> getAllTickets() {
+        return ticketService.getAllTickets();
     }
 
-    @PutMapping("update")
-    public ResponseEntity<Ticket> updateTicket(@RequestParam Long id, @RequestBody Ticket updatedTicket) {
-        try {
-            return ResponseEntity.ok(ticketService.updateTicket(id, updatedTicket));
-        } catch (Exception e) {return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    @PutMapping("/id/status")
+    public TicketDto changeStatus(
+            @PathVariable Long id,
+            @RequestParam TicketStatus status) {
+
+        return ticketService.changeTicketStatus(id, status);
     }
 
-    @DeleteMapping("delete")
-    public ResponseEntity<Void> deleteTicket(@RequestParam Long id) {
-        try {
-            ticketService.deleteTicket(id);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    @PutMapping("/id/close")
+    public TicketDto closeTicket(
+            @PathVariable Long id,
+            @RequestParam String resolution) {
+
+        return ticketService.closeTicket(id, resolution);
     }
 
-    @PutMapping("changeStatus")
-    public ResponseEntity<Ticket> changeTicketStatus(@RequestParam Long id,
-                                                     @RequestParam TicketStatus status) {
-        try {
-            return ResponseEntity.ok(ticketService.changeTicketStatus(id, status));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    @GetMapping("/by-status")
+    public List<TicketDto> getByStatus(@RequestParam TicketStatus status) {
+        return ticketService.getTicketsByStatus(status);
     }
 
-    @PutMapping("close")
-    public ResponseEntity<Ticket> closeTicket(@RequestParam Long id, @RequestParam String resolution) {
-        try {
-            return ResponseEntity.ok(ticketService.closeTicket(id, resolution));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
-    @GetMapping("byCategory")
-    public ResponseEntity<List<Ticket>> getTicketsByCategory(@RequestParam Category category) {
-        try {
-            return ResponseEntity.ok(ticketService.getTicketsByCategory(category));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-    }
-
-    @GetMapping("byStatus")
-    public ResponseEntity<List<Ticket>> getTicketsByStatus(@RequestParam TicketStatus status) {
-        try {
-            return ResponseEntity.ok(ticketService.getTicketsByStatus(status));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+    @GetMapping("/by-category/categoryId")
+    public List<TicketDto> getByCategory(@PathVariable Long categoryId) {
+        return ticketService.getTicketsByCategory(categoryId);
     }
 }
