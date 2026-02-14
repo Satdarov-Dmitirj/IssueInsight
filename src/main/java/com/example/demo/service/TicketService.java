@@ -48,6 +48,8 @@ public class TicketService implements TicketServiceInterface {
                 });
 
         savedTicket.setCategory(category);
+
+
         Ticket finalTicket = ticketRepository.save(savedTicket);
 
         return toDto(finalTicket);

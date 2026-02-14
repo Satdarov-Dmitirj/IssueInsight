@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Результат анализа тикета")
 public class AnalisResultRespouns {
 
     @Schema(description = "ID анализа", example = "55")
@@ -21,7 +22,7 @@ public class AnalisResultRespouns {
     @Schema(description = "Описание причины", example = "Не удалось войти в аккаунт")
     private String causeDescription;
 
-    @Schema(description = "Уверенность анализа", example = "75.5")
+    @Schema(description = "Уверенность анализа (%)", example = "75.5")
     private double analiseScore;
 
     @Schema(description = "Дата анализа", example = "2026-02-08T12:34:56")
