@@ -1,28 +1,31 @@
 package com.example.demo.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
-@Table(name = "categories")
+@Table(name = "categories",
+        indexes = {
+                @Index(name = "idx_category_name", columnList = "name")
+        })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Категория тикетов")
 public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "ID категории")
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, unique = true)
+    @Schema(description = "Название категории")
     private String name;
 
-    @Column(length = 255)
     private String description;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)

@@ -1,32 +1,35 @@
 package com.example.demo.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "analysis")
+@Table(name = "analysis",
+        indexes = {
+                @Index(name = "idx_analysis_ticket", columnList = "ticket_id"),
+                @Index(name = "idx_analysis_method", columnList = "analise_method")
+        })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Результат анализа тикета")
 public class AnalysisResult {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ticket_id", nullable = false)
     private Ticket ticket;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String detectedCause;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false)
     private String causeDescription;
 
     @Column(nullable = false)
@@ -36,6 +39,6 @@ public class AnalysisResult {
     private LocalDateTime analiseDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(name = "analise_method", nullable = false)
     private AnaliseMethod analiseMethod;
 }
