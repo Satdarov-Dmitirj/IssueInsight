@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-categories-table
+      author: Satdarov-Dmitrij
+      comment: Создание таблицы categories на основе entity Category
+      changes:
+        - createTable:
+            tableName: categories
+            columns:
+              # @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              # @Column(nullable = false, unique = true)
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+
+              # private String description;
+              - column:
+                  name: description
+                  type: varchar(255)
+
+        # @Column(unique = true) -> Явное ограничение уникальности
+        - addUniqueConstraint:
+            tableName: categories
+            columnNames: name
+            constraintName: uk_categories_name
+
+        # @Table(indexes = @Index(name = "idx_category_name", ...))
+        - createIndex:
+            indexName: idx_category_name
+            tableName: categories
+            unique: false
+            columns:
+              - column:
+                  name: name

@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: 001-create-user-table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 001_create_analysis_table.sql
+      relativeToChangelogFile: true
