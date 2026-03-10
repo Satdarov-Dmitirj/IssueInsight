@@ -29,7 +29,7 @@ public class ConfigurationKafka {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "groupSeccion");
-       // props.put(ConsumerConfig.)
+       // props.put(ConsumerConfig.)/1
 
         return new DefaultKafkaConsumerFactory<>(props);
 
