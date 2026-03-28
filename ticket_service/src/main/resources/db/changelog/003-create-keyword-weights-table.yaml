@@ -1,0 +1,50 @@
+
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-keyword-weights-table
+      author: dsatdarov
+      comment: Создание таблицы для хранения весов ключевых слов
+      changes:
+        - createTable:
+            tableName: keyword_weights
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: category_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: keyword
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: weight
+                  type: double precision
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+        - createIndex:
+            indexName: idx_keyword_weights_category
+            tableName: keyword_weights
+            unique: false
+            columns:
+              - column:
+                  name: category_name
+        - createIndex:
+            indexName: idx_keyword_weights_keyword
+            tableName: keyword_weights
+            unique: false
+            columns:
+              - column:
+                  name: keyword

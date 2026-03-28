@@ -1,9 +1,11 @@
+
 package com.example.demo.controller;
 
 import com.example.demo.dto.TicketCreateRequest;
 import com.example.demo.dto.TicketDto;
 import com.example.demo.entity.TicketStatus;
 import com.example.demo.repository.TicketServiceInterface;
+import com.example.demo.service.MailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -21,8 +22,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Ticket Controller", description = "Управление тикетами")
 public class TicketController {
-
     private final TicketServiceInterface ticketService;
+    private final MailService mailService;
 
     @Operation(summary = "Создать новый тикет")
     @ApiResponses({
@@ -30,10 +31,19 @@ public class TicketController {
             @ApiResponse(responseCode = "400", description = "Некорректные данные")
     })
     @PostMapping
-    public ResponseEntity<TicketDto> createTicket(
-            @RequestBody TicketCreateRequest request) {
-
+    public ResponseEntity<TicketDto> createTicket(@RequestBody TicketCreateRequest request) {
         TicketDto ticket = ticketService.createTicket(request);
+
+        // Отправляем уведомление пользователю
+        mailService.sendEmail(
+                request.getEmail(),
+                "Тикет #" + ticket.getId() + " создан",
+                "<h2>Ваш тикет создан</h2>" +
+                        "<p>Тикет #" + ticket.getId() + " успешно создан.</p>" +
+                        "<p>Тема: " + ticket.getSubject() + "</p>" +
+                        "<p>Статус: " + ticket.getStatus() + "</p>"
+        );
+
         return ResponseEntity.status(HttpStatus.CREATED).body(ticket);
     }
 
@@ -43,10 +53,7 @@ public class TicketController {
             @ApiResponse(responseCode = "404", description = "Тикет не найден")
     })
     @GetMapping("/by-id")
-    public TicketDto getTicket(
-            @Parameter(description = "ID тикета", example = "1")
-            @RequestParam Long id) {
-
+    public TicketDto getTicket(@Parameter(description = "ID тикета", example = "1") @RequestParam Long id) {
         return ticketService.getTicketById(id)
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
     }
@@ -66,11 +73,18 @@ public class TicketController {
             @ApiResponse(responseCode = "404", description = "Тикет не найден")
     })
     @PutMapping("/change-status")
-    public TicketDto changeStatus(
-            @RequestParam Long id,
-            @RequestParam TicketStatus status) {
+    public TicketDto changeStatus(@RequestParam Long id, @RequestParam TicketStatus status) {
+        TicketDto ticket = ticketService.changeTicketStatus(id, status);
 
-        return ticketService.changeTicketStatus(id, status);
+        // Отправляем уведомление пользователю
+        mailService.sendTicketNotification(
+                ticket.getCustomerEmail(),
+                String.valueOf(ticket.getId()),
+                status.toString(),
+                null
+        );
+
+        return ticket;
     }
 
     @Operation(summary = "Закрыть тикет")
@@ -79,11 +93,18 @@ public class TicketController {
             @ApiResponse(responseCode = "404", description = "Тикет не найден")
     })
     @PutMapping("/close")
-    public TicketDto closeTicket(
-            @RequestParam Long id,
-            @RequestParam String resolution) {
+    public TicketDto closeTicket(@RequestParam Long id, @RequestParam String resolution) {
+        TicketDto ticket = ticketService.closeTicket(id, resolution);
 
-        return ticketService.closeTicket(id, resolution);
+        // Отправляем уведомление пользователю
+        mailService.sendTicketNotification(
+                ticket.getCustomerEmail(),
+                String.valueOf(ticket.getId()),
+                "CLOSED",
+                resolution
+        );
+
+        return ticket;
     }
 
     @Operation(summary = "Получить тикеты по статусу")
