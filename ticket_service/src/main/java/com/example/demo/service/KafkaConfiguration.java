@@ -1,8 +1,8 @@
 package com.example.demo.service;
 
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -16,20 +16,21 @@ import java.util.Map;
 @EnableKafka
 @Configuration
 public class KafkaConfiguration {
-    String bootstrapServer = "localhost:9092";
+
+    @Value("${spring.kafka.producer.bootstrap-servers}")
+    private String bootstrapServers;
 
     @Bean
-    public ProducerFactory <String, String> producerFactory(){
-        Map<String, Object> objec1 = new HashMap<>();
-
-        objec1.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
-        objec1.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        objec1.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        return new DefaultKafkaProducerFactory<>(objec1);
+    public ProducerFactory<String, String> producerFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        return new DefaultKafkaProducerFactory<>(config);
     }
 
     @Bean
-    public KafkaTemplate<String, String> kafkaTemplate(){
+    public KafkaTemplate<String, String> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }

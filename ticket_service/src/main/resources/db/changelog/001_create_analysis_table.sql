@@ -1,15 +1,13 @@
-
 --liquibase formatted sql
 
 --changeset dsatdarov:1
-CREATE TABLE IF NOT EXISTS analysis (
+CREATE TABLE IF NOT EXISTS tickets (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    ticket_id BIGINT NOT NULL,
-    detected_cause VARCHAR(255) NOT NULL,
-    cause_description VARCHAR(500) NOT NULL,
-    analise_score DOUBLE PRECISION NOT NULL,
-    analise_date TIMESTAMP NOT NULL,
-    analise_method VARCHAR(20) NOT NULL,
-    CONSTRAINT fk_analysis_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id)  -- Изменено с ticket на tickets
+    subject VARCHAR(255),
+    description VARCHAR(1000),
+    status VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
---rollback DROP TABLE
+
+--rollback DROP TABLE tickets;

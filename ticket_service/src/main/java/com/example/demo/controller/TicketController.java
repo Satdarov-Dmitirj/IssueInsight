@@ -1,11 +1,11 @@
-
 package com.example.demo.controller;
 
 import com.example.demo.dto.TicketCreateRequest;
 import com.example.demo.dto.TicketDto;
 import com.example.demo.entity.TicketStatus;
 import com.example.demo.repository.TicketServiceInterface;
-import com.example.demo.service.MailService;
+import com.example.demo.service.EmailNotificationSendlerService;
+import com.example.demo.service.EmailNotificationSendlerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/tickets")
+@RequestMapping("tickets")
 @RequiredArgsConstructor
 @Tag(name = "Ticket Controller", description = "Управление тикетами")
 public class TicketController {
     private final TicketServiceInterface ticketService;
-    private final MailService mailService;
+    private final EmailNotificationSendlerService emailNotificationSender;
 
     @Operation(summary = "Создать новый тикет")
     @ApiResponses({
@@ -34,14 +34,11 @@ public class TicketController {
     public ResponseEntity<TicketDto> createTicket(@RequestBody TicketCreateRequest request) {
         TicketDto ticket = ticketService.createTicket(request);
 
-        // Отправляем уведомление пользователю
-        mailService.sendEmail(
+        emailNotificationSender.sendTicketCreatedNotification(
                 request.getEmail(),
-                "Тикет #" + ticket.getId() + " создан",
-                "<h2>Ваш тикет создан</h2>" +
-                        "<p>Тикет #" + ticket.getId() + " успешно создан.</p>" +
-                        "<p>Тема: " + ticket.getSubject() + "</p>" +
-                        "<p>Статус: " + ticket.getStatus() + "</p>"
+                String.valueOf(ticket.getId()),
+                ticket.getSubject(),
+                ticket.getStatus().toString()
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ticket);
@@ -76,12 +73,10 @@ public class TicketController {
     public TicketDto changeStatus(@RequestParam Long id, @RequestParam TicketStatus status) {
         TicketDto ticket = ticketService.changeTicketStatus(id, status);
 
-        // Отправляем уведомление пользователю
-        mailService.sendTicketNotification(
+        emailNotificationSender.sendStatusChangeNotification(
                 ticket.getCustomerEmail(),
                 String.valueOf(ticket.getId()),
-                status.toString(),
-                null
+                status.toString()
         );
 
         return ticket;
@@ -92,15 +87,13 @@ public class TicketController {
             @ApiResponse(responseCode = "200", description = "Тикет закрыт"),
             @ApiResponse(responseCode = "404", description = "Тикет не найден")
     })
-    @PutMapping("/close")
+    @PutMapping("close")
     public TicketDto closeTicket(@RequestParam Long id, @RequestParam String resolution) {
         TicketDto ticket = ticketService.closeTicket(id, resolution);
 
-        // Отправляем уведомление пользователю
-        mailService.sendTicketNotification(
+        emailNotificationSender.sendTicketClosedNotification(
                 ticket.getCustomerEmail(),
                 String.valueOf(ticket.getId()),
-                "CLOSED",
                 resolution
         );
 
@@ -120,7 +113,7 @@ public class TicketController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Список получен")
     })
-    @GetMapping("/by-category")
+    @GetMapping("by-category")
     public List<TicketDto> getByCategory(@RequestParam Long categoryId) {
         return ticketService.getTicketsByCategory(categoryId);
     }

@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IssueInsight - Система управления тикетами</title>
+    <style>
+        /* ========== ПЕРЕМЕННЫЕ И ОБЩИЕ СТИЛИ ========== */
+        :root {
+            /* Основные цвета */
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #10b981;
+            --secondary-dark: #059669;
+            --danger: #ef4444;
+            --danger-dark: #dc2626;
+            --warning: #f59e0b;
+            --warning-dark: #d97706;
+            --info: #3b82f6;
+            --success: #10b981;
+
+            /* Нейтральные цвета */
+            --dark: #1e293b;
+            --dark-hover: #0f172a;
+            --gray: #64748b;
+            --gray-light: #94a3b8;
+            --gray-lighter: #cbd5e1;
+            --light: #f8fafc;
+            --lighter: #f1f5f9;
+            --white: #ffffff;
+
+            /* Статусы тикетов */
+            --status-open: #3b82f6;
+            --status-in-progress: #f59e0b;
+            --status-resolved: #10b981;
+            --status-closed: #64748b;
+
+            /* Тени */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+            /* Градиенты */
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+
+            /* Размеры */
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* ========== КОНТЕЙНЕР ========== */
+        .app-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* ========== ХЕДЕР ========== */
+        .app-header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-lg);
+            padding: 32px 40px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-left h1 {
+            font-size: 36px;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-left p {
+            color: var(--gray);
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* ========== НАВИГАЦИЯ ========== */
+        .navigation {
+            background: white;
+            border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+            padding: 0 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 20px 32px;
+            background: transparent;
+            border: none;
+            color: var(--gray);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-tab::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-tab:hover {
+            color: var(--primary);
+            background: var(--lighter);
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+        }
+
+        .nav-tab.active::after {
+            transform: scaleX(1);
+        }
+
+        .nav-tab .badge {
+            background: var(--primary-light);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* ========== ОСНОВНОЙ КОНТЕНТ ========== */
+        .main-content {
+            background: white;
+            border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-xl);
+            min-height: 700px;
+            animation: fadeIn 0.6s ease-out 0.2s both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        /* ========== DASHBOARD ========== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--light) 0%, white 100%);
+            border: 2px solid var(--lighter);
+            border-radius: var(--border-radius);
+            padding: 28px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .stat-card.open::before {
+            background: var(--gradient-primary);
+        }
+
+        .stat-card.in-progress::before {
+            background: var(--gradient-danger);
+        }
+
+        .stat-card.resolved::before {
+            background: var(--gradient-success);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            background: var(--lighter);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--dark);
+            line-height: 1;
+        }
+
+        .stat-trend {
+            margin-top: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-trend.up {
+            color: var(--success);
+        }
+
+        .stat-trend.down {
+            color: var(--danger);
+        }
+
+        /* ========== КНОПКИ ========== */
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: var(--secondary-dark);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-dark);
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        /* ========== ЗАГОЛОВКИ СЕКЦИЙ ========== */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--lighter);
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* ========== ФИЛЬТРЫ И ПОИСК ========== */
+        .filters {
+            background: var(--light);
+            border: 2px solid var(--lighter);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .filter-input,
+        .filter-select {
+            padding: 14px 16px;
+            border: 2px solid var(--lighter);
+            border-radius: var(--border-radius);
+            font-size: 15px;
+            font-family: inherit;
+            background: white;
+            transition: var(--transition);
+        }
+
+        .filter-input:focus,
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        /* ========== ТАБЛИЦА ТИКЕТОВ ========== */
+        .tickets-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 12px;
+        }
+
+        .tickets-table thead th {
+            background: var(--light);
+            padding: 16px 20px;
+            text-align: left;
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--lighter);
+        }
+
+        .tickets-table thead th:first-child {
+            border-radius: var(--border-radius) 0 0 var(--border-radius);
+        }
+
+        .tickets-table thead th:last-child {
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+
+        .tickets-table tbody tr {
+            background: white;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .tickets-table tbody tr:hover {
+            background: var(--lighter);
+            transform: scale(1.01);
+            box-shadow: var(--shadow);
+        }
+
+        .tickets-table tbody td {
+            padding: 20px;
+            border-top: 1px solid var(--lighter);
+            border-bottom: 1px solid var(--lighter);
+        }
+
+        .tickets-table tbody td:first-child {
+            border-left: 1px solid var(--lighter);
+            border-radius: var(--border-radius) 0 0 var(--border-radius);
+        }
+
+        .tickets-table tbody td:last-child {
+            border-right: 1px solid var(--lighter);
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+
+        .ticket-id {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 16px;
+        }
+
+        .ticket-subject {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+
+        .ticket-description {
+            color: var(--gray);
+            font-size: 14px;
+            max-width: 500px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.open {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--status-open);
+        }
+
+        .status-badge.in_progress {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--status-in-progress);
+        }
+
+        .status-badge.resoult {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--status-resolved);
+        }
+
+        .status-badge.closed {
+            background: rgba(100, 116, 139, 0.1);
+            color: var(--status-closed);
+        }
+
+        .status-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .category-tag {
+            background: var(--lighter);
+            color: var(--dark);
+            padding: 6px 12px;
+            border-radius: var(--border-radius);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* ========== МОДАЛЬНЫЕ ОКНА ========== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 28px 32px;
+            border-bottom: 2px solid var(--lighter);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--dark);
+        }
+
+        .modal-close {
+            background: var(--lighter);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background: var(--danger);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--lighter);
+            border-radius: var(--border-radius);
+            font-size: 15px;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .modal-footer {
+            padding: 24px 32px;
+            border-top: 2px solid var(--lighter);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* ========== КАРТОЧКИ АНАЛИЗА ========== */
+        .analysis-grid {
+            display: grid;
+            gap: 24px;
+        }
+
+        .analysis-card {
+            background: linear-gradient(135deg, var(--light) 0%, white 100%);
+            border: 2px solid var(--lighter);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            transition: var(--transition);
+        }
+
+        .analysis-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .analysis-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .analysis-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 14px;
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        .confidence-bar {
+            background: var(--lighter);
+            height: 12px;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: var(--gradient-success);
+            border-radius: 20px;
+            transition: width 1s ease;
+        }
+
+        .analysis-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .metric {
+            background: white;
+            border: 2px solid var(--lighter);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--dark);
+        }
+
+        /* ========== ПУСТОЕ СОСТОЯНИЕ ========== */
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 12px;
+        }
+
+        .empty-state p {
+            color: var(--gray);
+            font-size: 16px;
+            margin-bottom: 28px;
+        }
+
+        /* ========== ЗАГРУЗКА ========== */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--lighter);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        /* ========== TOAST УВЕДОМЛЕНИЯ ========== */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: white;
+            padding: 20px 24px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 300px;
+            z-index: 2000;
+            transform: translateX(400px);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            font-size: 24px;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+
+        .toast-message {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .toast.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        /* ========== АДАПТИВНОСТЬ ========== */
+        @media (max-width: 768px) {
+            .app-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .header-right {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .navigation {
+                overflow-x: auto;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .section-actions {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .tickets-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .filter-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ========== ДЕТАЛЬНАЯ ИНФОРМАЦИЯ О ТИКЕТЕ ========== */
+        .ticket-details {
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--lighter);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 700;
+            color: var(--gray);
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* ========== ACTIONS В ТАБЛИЦЕ ========== */
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .action-view {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .action-edit {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .action-analyze {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        /* ========== PROGRESS INDICATOR ========== */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--lighter);
+            z-index: 0;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            z-index: 1;
+            background: white;
+            padding: 0 12px;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--lighter);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .step-circle.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+        }
+
+        .step-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray);
+        }
+
+        .step-circle.active + .step-label {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- Хедер -->
+    <header class="app-header">
+        <div class="header-left">
+            <h1>
+                <span>🎯</span>
+                IssueInsight
+            </h1>
+            <p>Интеллектуальная система управления тикетами с автоматическим анализом</p>
+        </div>
+        <div class="header-right">
+            <button class="btn btn-outline" onclick="loadData()">
+                <span>🔄</span> Обновить
+            </button>
+        </div>
+    </header>
+
+    <!-- Навигация -->
+    <nav class="navigation">
+        <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
+            <span>📊</span> Dashboard
+            <span class="badge" id="totalTicketsBadge">0</span>
+        </button>
+        <button class="nav-tab" onclick="switchTab('tickets')" data-tab="tickets">
+            <span>🎫</span> Тикеты
+        </button>
+        <button class="nav-tab" onclick="switchTab('categories')" data-tab="categories">
+            <span>📁</span> Категории
+        </button>
+        <button class="nav-tab" onclick="switchTab('analysis')" data-tab="analysis">
+            <span>🔍</span> Анализ
+        </button>
+    </nav>
+
+    <!-- Основной контент -->
+    <main class="main-content">
+        <!-- Dashboard -->
+        <section id="dashboard" class="content-section active">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span>📊</span>
+                    Общая статистика
+                </h2>
+                <div class="section-actions">
+                    <button class="btn btn-primary" onclick="openModal('createTicketModal')">
+                        <span>➕</span> Создать тикет
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card open">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Открытые</div>
+                            <div class="stat-value" id="openTicketsCount">0</div>
+                        </div>
+                        <div class="stat-icon">🟢</div>
+                    </div>
+                    <div class="stat-trend up">
+                        <span>↗</span> Новые тикеты
+                    </div>
+                </div>
+
+                <div class="stat-card in-progress">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">В работе</div>
+                            <div class="stat-value" id="inProgressCount">0</div>
+                        </div>
+                        <div class="stat-icon">🟡</div>
+                    </div>
+                    <div class="stat-trend">
+                        <span>→</span> Обрабатываются
+                    </div>
+                </div>
+
+                <div class="stat-card resolved">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Решенные</div>
+                            <div class="stat-value" id="resolvedCount">0</div>
+                        </div>
+                        <div class="stat-icon">✅</div>
+                    </div>
+                    <div class="stat-trend up">
+                        <span>↗</span> Выполнено
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Закрытые</div>
+                            <div class="stat-value" id="closedCount">0</div>
+                        </div>
+                        <div class="stat-icon">🔒</div>
+                    </div>
+                    <div class="stat-trend">
+                        <span>—</span> Архив
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header" style="margin-top: 40px;">
+                <h2 class="section-title">
+                    <span>🕐</span>
+                    Последние тикеты
+                </h2>
+            </div>
+
+            <div id="recentTickets"></div>
+        </section>
+
+        <!-- Тикеты -->
+        <section id="tickets" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span>🎫</span>
+                    Управление тикетами
+                </h2>
+                <div class="section-actions">
+                    <button class="btn btn-primary" onclick="openModal('createTicketModal')">
+                        <span>➕</span> Создать тикет
+                    </button>
+                </div>
+            </div>
+
+            <!-- Фильтры -->
+            <div class="filters">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label class="filter-label">🔍 Поиск</label>
+                        <input type="text" class="filter-input" id="searchTicket" placeholder="Поиск по теме или описанию...">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">📋 Статус</label>
+                        <select class="filter-select" id="filterStatus">
+                            <option value="">Все статусы</option>
+                            <option value="OPEN">Открытые</option>
+                            <option value="IN_PROGRESS">В работе</option>
+                            <option value="RESOULT">Решенные</option>
+                            <option value="CLOSED">Закрытые</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">📁 Категория</label>
+                        <select class="filter-select" id="filterCategory">
+                            <option value="">Все категории</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" style="display: flex; align-items: flex-end;">
+                        <button class="btn btn-outline btn-sm" onclick="clearFilters()">
+                            <span>🗑️</span> Очистить
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ticketsTableContainer"></div>
+        </section>
+
+        <!-- Категории -->
+        <section id="categories" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span>📁</span>
+                    Управление категориями
+                </h2>
+                <div class="section-actions">
+                    <button class="btn btn-success" onclick="openModal('createCategoryModal')">
+                        <span>➕</span> Создать категорию
+                    </button>
+                </div>
+            </div>
+
+            <div id="categoriesContainer"></div>
+        </section>
+
+        <!-- Анализ -->
+        <section id="analysis" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span>🔍</span>
+                    Анализ тикетов
+                </h2>
+            </div>
+
+            <div class="filters">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label class="filter-label">🎯 ID тикета</label>
+                        <input type="number" class="filter-input" id="analysisTicketId" placeholder="Введите ID тикета для анализа...">
+                    </div>
+                    <div class="filter-group" style="display: flex; align-items: flex-end; gap: 12px;">
+                        <button class="btn btn-primary" onclick="searchAnalysis()">
+                            <span>🔍</span> Анализировать
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="clearAnalysis()">
+                            Очистить
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="analysisResults"></div>
+        </section>
+    </main>
+</div>
+
+<!-- Модальное окно создания тикета -->
+<div id="createTicketModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Создать новый тикет</h3>
+            <button class="modal-close" onclick="closeModal('createTicketModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="createTicketForm" onsubmit="createTicket(event)">
+                <div class="form-group">
+                    <label class="form-label">Тема обращения</label>
+                    <input type="text" class="form-input" id="ticketSubject" required placeholder="Краткое описание проблемы">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Описание проблемы</label>
+                    <textarea class="form-textarea" id="ticketDescription" required placeholder="Подробное описание проблемы"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email клиента</label>
+                    <input type="email" class="form-input" id="ticketEmail" required placeholder="customer@example.com">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('createTicketModal')">Отмена</button>
+            <button class="btn btn-primary" onclick="document.getElementById('createTicketForm').requestSubmit()">
+                <span>✅</span> Создать
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно создания категории -->
+<div id="createCategoryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Создать категорию</h3>
+            <button class="modal-close" onclick="closeModal('createCategoryModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="createCategoryForm" onsubmit="createCategory(event)">
+                <div class="form-group">
+                    <label class="form-label">Название категории</label>
+                    <input type="text" class="form-input" id="categoryName" required placeholder="Название категории">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Описание</label>
+                    <textarea class="form-textarea" id="categoryDescription" placeholder="Описание категории (необязательно)"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('createCategoryModal')">Отмена</button>
+            <button class="btn btn-success" onclick="document.getElementById('createCategoryForm').requestSubmit()">
+                <span>✅</span> Создать
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно просмотра тикета -->
+<div id="viewTicketModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Детали тикета</h3>
+            <button class="modal-close" onclick="closeModal('viewTicketModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <div id="ticketDetailsContent"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('viewTicketModal')">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast контейнер -->
+<div id="toastContainer"></div>
+
+<script>
+    // ========== КОНФИГУРАЦИЯ API ==========
+    const API_BASE_URL = 'http://localhost:8080';
+
+    // ========== СОСТОЯНИЕ ПРИЛОЖЕНИЯ ==========
+    let tickets = [];
+    let categories = [];
+    let currentTab = 'dashboard';
+
+    // ========== ИНИЦИАЛИЗАЦИЯ ==========
+    document.addEventListener('DOMContentLoaded', () => {
+        loadData();
+        setupEventListeners();
+    });
+
+    function setupEventListeners() {
+        // Фильтры тикетов
+        document.getElementById('searchTicket')?.addEventListener('input', filterTickets);
+        document.getElementById('filterStatus')?.addEventListener('change', filterTickets);
+        document.getElementById('filterCategory')?.addEventListener('change', filterTickets);
+
+        // Закрытие модальных окон по клику вне их
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal(modal.id);
+                }
+            });
+        });
+    }
+
+    // ========== ЗАГРУЗКА ДАННЫХ ==========
+    async function loadData() {
+        await Promise.all([
+            loadTickets(),
+            loadCategories()
+        ]);
+        updateDashboard();
+    }
+
+    async function loadTickets() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/tickets`);
+            tickets = await response.json();
+            renderTickets();
+            return tickets;
+        } catch (error) {
+            console.error('Ошибка загрузки тикетов:', error);
+            showToast('Ошибка загрузки тикетов', 'error');
+            return [];
+        }
+    }
+
+    async function loadCategories() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/categories`);
+            categories = await response.json();
+            renderCategories();
+            updateCategoryFilters();
+            return categories;
+        } catch (error) {
+            console.error('Ошибка загрузки категорий:', error);
+            showToast('Ошибка загрузки категорий', 'error');
+            return [];
+        }
+    }
+
+    // ========== ПЕРЕКЛЮЧЕНИЕ ТАБОВ ==========
+    function switchTab(tabName) {
+        // Обновляем активные табы
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelector(`[data-tab="${tabName}"]`)?.classList.add('active');
+
+        // Обновляем активные секции
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.getElementById(tabName)?.classList.add('active');
+
+        currentTab = tabName;
+    }
+
+    // ========== DASHBOARD ==========
+    function updateDashboard() {
+        const stats = {
+            open: tickets.filter(t => t.status === 'OPEN').length,
+            inProgress: tickets.filter(t => t.status === 'IN_PROGRESS').length,
+            resolved: tickets.filter(t => t.status === 'RESOULT').length,
+            closed: tickets.filter(t => t.status === 'CLOSED').length,
+            total: tickets.length
+        };
+
+        document.getElementById('openTicketsCount').textContent = stats.open;
+        document.getElementById('inProgressCount').textContent = stats.inProgress;
+        document.getElementById('resolvedCount').textContent = stats.resolved;
+        document.getElementById('closedCount').textContent = stats.closed;
+        document.getElementById('totalTicketsBadge').textContent = stats.total;
+
+        renderRecentTickets();
+    }
+
+    function renderRecentTickets() {
+        const container = document.getElementById('recentTickets');
+        const recent = tickets.slice(-5).reverse();
+
+        if (recent.length === 0) {
+            container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h3>Нет тикетов</h3>
+                        <p>Создайте первый тикет для начала работы</p>
+                        <button class="btn btn-primary" onclick="openModal('createTicketModal')">
+                            <span>➕</span> Создать тикет
+                        </button>
+                    </div>
+                `;
+            return;
+        }
+
+        let html = '<table class="tickets-table"><thead><tr>';
+        html += '<th>ID</th><th>Тема</th><th>Email</th><th>Статус</th><th>Категория</th><th>Дата</th>';
+        html += '</tr></thead><tbody>';
+
+        recent.forEach(ticket => {
+            html += `
+                    <tr onclick="viewTicket(${ticket.id})">
+                        <td><span class="ticket-id">#${ticket.id}</span></td>
+                        <td>
+                            <div class="ticket-subject">${ticket.subject}</div>
+                            <div class="ticket-description">${ticket.description}</div>
+                        </td>
+                        <td>${ticket.customerEmail}</td>
+                        <td><span class="status-badge ${ticket.status.toLowerCase()}">${getStatusText(ticket.status)}</span></td>
+                        <td><span class="category-tag">${ticket.categoryName || 'Без категории'}</span></td>
+                        <td>${formatDate(ticket.createdAt)}</td>
+                    </tr>
+                `;
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    // ========== ТИКЕТЫ ==========
+    function renderTickets() {
+        const container = document.getElementById('ticketsTableContainer');
+
+        if (tickets.length === 0) {
+            container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h3>Нет тикетов</h3>
+                        <p>Создайте первый тикет для начала работы</p>
+                        <button class="btn btn-primary" onclick="openModal('createTicketModal')">
+                            <span>➕</span> Создать тикет
+                        </button>
+                    </div>
+                `;
+            return;
+        }
+
+        let html = '<table class="tickets-table"><thead><tr>';
+        html += '<th>ID</th><th>Тема</th><th>Email</th><th>Статус</th><th>Категория</th><th>Дата</th><th>Действия</th>';
+        html += '</tr></thead><tbody>';
+
+        tickets.forEach(ticket => {
+            html += `
+                    <tr>
+                        <td><span class="ticket-id">#${ticket.id}</span></td>
+                        <td>
+                            <div class="ticket-subject">${ticket.subject}</div>
+                            <div class="ticket-description">${ticket.description}</div>
+                        </td>
+                        <td>${ticket.customerEmail}</td>
+                        <td><span class="status-badge ${ticket.status.toLowerCase()}">${getStatusText(ticket.status)}</span></td>
+                        <td><span class="category-tag">${ticket.categoryName || 'Без категории'}</span></td>
+                        <td>${formatDate(ticket.createdAt)}</td>
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn action-view" onclick="viewTicket(${ticket.id})" title="Просмотр">👁️</button>
+                                <button class="action-btn action-analyze" onclick="analyzeTicket(${ticket.id})" title="Анализ">🔍</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    function filterTickets() {
+        const search = document.getElementById('searchTicket').value.toLowerCase();
+        const status = document.getElementById('filterStatus').value;
+        const category = document.getElementById('filterCategory').value;
+
+        const rows = document.querySelectorAll('#ticketsTableContainer tbody tr');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const ticketStatus = row.querySelector('.status-badge')?.className.split(' ')[1]?.toUpperCase() || '';
+            const ticketCategory = row.querySelector('.category-tag')?.textContent || '';
+
+            const matchSearch = text.includes(search);
+            const matchStatus = !status || ticketStatus === status;
+            const matchCategory = !category || ticketCategory === category;
+
+            row.style.display = matchSearch && matchStatus && matchCategory ? '' : 'none';
+        });
+    }
+
+    function clearFilters() {
+        document.getElementById('searchTicket').value = '';
+        document.getElementById('filterStatus').value = '';
+        document.getElementById('filterCategory').value = '';
+        filterTickets();
+    }
+
+    async function createTicket(event) {
+        event.preventDefault();
+
+        const data = {
+            subject: document.getElementById('ticketSubject').value,
+            description: document.getElementById('ticketDescription').value,
+            email: document.getElementById('ticketEmail').value
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/tickets`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                showToast('Тикет успешно создан', 'success');
+                closeModal('createTicketModal');
+                document.getElementById('createTicketForm').reset();
+                await loadData();
+            } else {
+                throw new Error('Ошибка создания тикета');
+            }
+        } catch (error) {
+            showToast('Ошибка создания тикета', 'error');
+        }
+    }
+
+    async function viewTicket(id) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/tickets/by-id?id=${id}`);
+            const ticket = await response.json();
+
+            const content = document.getElementById('ticketDetailsContent');
+            content.innerHTML = `
+                    <div class="ticket-details">
+                        <div class="detail-row">
+                            <span class="detail-label">ID</span>
+                            <span class="detail-value">#${ticket.id}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Тема</span>
+                            <span class="detail-value">${ticket.subject}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Описание</span>
+                            <span class="detail-value">${ticket.description}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value">${ticket.customerEmail}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Статус</span>
+                            <span class="detail-value"><span class="status-badge ${ticket.status.toLowerCase()}">${getStatusText(ticket.status)}</span></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Категория</span>
+                            <span class="detail-value">${ticket.categoryName || 'Без категории'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Создан</span>
+                            <span class="detail-value">${formatDate(ticket.createdAt)}</span>
+                        </div>
+                        ${ticket.resolvedAt ? `
+                        <div class="detail-row">
+                            <span class="detail-label">Решен</span>
+                            <span class="detail-value">${formatDate(ticket.resolvedAt)}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+
+            openModal('viewTicketModal');
+        } catch (error) {
+            showToast('Ошибка загрузки тикета', 'error');
+        }
+    }
+
+    // ========== КАТЕГОРИИ ==========
+    function renderCategories() {
+        const container = document.getElementById('categoriesContainer');
+
+        if (categories.length === 0) {
+            container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📁</div>
+                        <h3>Нет категорий</h3>
+                        <p>Создайте первую категорию для организации тикетов</p>
+                        <button class="btn btn-success" onclick="openModal('createCategoryModal')">
+                            <span>➕</span> Создать категорию
+                        </button>
+                    </div>
+                `;
+            return;
+        }
+
+        let html = '<div class="stats-grid">';
+
+        categories.forEach(category => {
+            const ticketCount = tickets.filter(t => t.categoryName === category.name).length;
+            html += `
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-label">${category.name}</div>
+                                <div class="stat-value">${ticketCount}</div>
+                            </div>
+                            <div class="stat-icon">📁</div>
+                        </div>
+                        <div style="color: var(--gray); font-size: 14px; margin-top: 8px;">
+                            ${category.description || 'Без описания'}
+                        </div>
+                    </div>
+                `;
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    function updateCategoryFilters() {
+        const select = document.getElementById('filterCategory');
+        if (!select) return;
+
+        let options = '<option value="">Все категории</option>';
+        categories.forEach(cat => {
+            options += `<option value="${cat.name}">${cat.name}</option>`;
+        });
+        select.innerHTML = options;
+    }
+
+    async function createCategory(event) {
+        event.preventDefault();
+
+        const data = {
+            name: document.getElementById('categoryName').value,
+            description: document.getElementById('categoryDescription').value
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/categories`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                showToast('Категория успешно создана', 'success');
+                closeModal('createCategoryModal');
+                document.getElementById('createCategoryForm').reset();
+                await loadCategories();
+            } else {
+                throw new Error('Ошибка создания категории');
+            }
+        } catch (error) {
+            showToast('Ошибка создания категории', 'error');
+        }
+    }
+
+    // ========== АНАЛИЗ ==========
+    function analyzeTicket(id) {
+        switchTab('analysis');
+        document.getElementById('analysisTicketId').value = id;
+        searchAnalysis();
+    }
+
+    async function searchAnalysis() {
+        const ticketId = document.getElementById('analysisTicketId').value;
+
+        if (!ticketId) {
+            showToast('Введите ID тикета', 'warning');
+            return;
+        }
+
+        const container = document.getElementById('analysisResults');
+        container.innerHTML = '<div class="loading"><div class="spinner"></div><div class="loading-text">Анализируем тикет...</div></div>';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/analysis/by-ticket?ticketId=${ticketId}`);
+
+            if (!response.ok) {
+                throw new Error('Анализ не найден');
+            }
+
+            const results = await response.json();
+            renderAnalysisResults(results);
+        } catch (error) {
+            container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <h3>Анализ не найден</h3>
+                        <p>Для тикета #${ticketId} не найдено результатов анализа</p>
+                    </div>
+                `;
+        }
+    }
+
+    function renderAnalysisResults(results) {
+        const container = document.getElementById('analysisResults');
+
+        if (!results || results.length === 0) {
+            container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <h3>Нет результатов</h3>
+                        <p>Результаты анализа отсутствуют</p>
+                    </div>
+                `;
+            return;
+        }
+
+        let html = '<div class="analysis-grid">';
+
+        results.forEach((result, index) => {
+            html += `
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <div>
+                                <h3 style="font-size: 20px; font-weight: 700; color: var(--dark); margin-bottom: 8px;">
+                                    Анализ #${index + 1}
+                                </h3>
+                                <div class="analysis-meta">
+                                    <span>🎯 ID: ${result.id}</span>
+                                    <span>📅 ${formatDate(result.analiseDate)}</span>
+                                    <span>⚡ ${result.analiseMethod}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin: 20px 0;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-weight: 600; color: var(--gray);">Уверенность анализа</span>
+                                <span style="font-weight: 700; color: var(--primary);">${result.analiseScore.toFixed(1)}%</span>
+                            </div>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: ${result.analiseScore}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="analysis-metrics">
+                            <div class="metric">
+                                <div class="metric-label">📁 Категория</div>
+                                <div class="metric-value" style="font-size: 18px;">${result.detectedCause}</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">📝 Описание</div>
+                                <div style="font-size: 14px; color: var(--gray); font-weight: 600; margin-top: 8px;">
+                                    ${result.causeDescription}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    function clearAnalysis() {
+        document.getElementById('analysisTicketId').value = '';
+        document.getElementById('analysisResults').innerHTML = '';
+    }
+
+    // ========== МОДАЛЬНЫЕ ОКНА ==========
+    function openModal(modalId) {
+        document.getElementById(modalId).classList.add('show');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('show');
+    }
+
+    // ========== TOAST УВЕДОМЛЕНИЯ ==========
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+
+        const icons = {
+            success: '✅',
+            error: '❌',
+            warning: '⚠️',
+            info: 'ℹ️'
+        };
+
+        const titles = {
+            success: 'Успех',
+            error: 'Ошибка',
+            warning: 'Внимание',
+            info: 'Информация'
+        };
+
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+                <div class="toast-icon">${icons[type]}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${titles[type]}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+
+        container.appendChild(toast);
+
+        setTimeout(() => toast.classList.add('show'), 100);
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 400);
+        }, 3000);
+    }
+
+    // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+    function getStatusText(status) {
+        const statuses = {
+            'OPEN': 'Открыт',
+            'IN_PROGRESS': 'В работе',
+            'RESOULT': 'Решен',
+            'CLOSED': 'Закрыт'
+        };
+        return statuses[status] || status;
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return '—';
+        const date = new Date(dateString);
+        return date.toLocaleString('ru-RU', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+</script>
+</body>
+</html>

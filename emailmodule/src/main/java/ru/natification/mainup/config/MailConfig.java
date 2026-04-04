@@ -1,30 +1,27 @@
-
-package com.example.demo.config;
+package ru.natification.mainup.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+
 import java.util.Properties;
 
 @Configuration
 public class MailConfig {
 
-    @Value("${mail.service.host:smtp.gmail.com}")
+    @Value("spring.mail.host")
     private String host;
 
-    @Value("${mail.service.port:587}")
+    @Value("spring.mail.port")
     private int port;
 
-    @Value("${mail.service.username:#{null}}")
+    @Value("spring.mail.username")
     private String username;
 
-    @Value("${mail.service.password:#{null}}")
+    @Value("spring.mail.password")
     private String password;
-
-    @Value("${mail.service.protocol:smtp}")
-    private String protocol;
 
     @Bean
     public JavaMailSender javaMailSender() {
@@ -35,9 +32,10 @@ public class MailConfig {
         mailSender.setPassword(password);
 
         Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", protocol);
+        props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.starttls.required", "true");
         props.put("mail.debug", "false");
 
         return mailSender;
