@@ -1,0 +1,90 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-insert-initial-data
+      author: system
+      comment: Заполнение таблиц начальными данными для анализа
+      changes:
+        # Вставка категорий
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, valueNumeric: 1 }
+              - column: { name: name, value: "Авторизация" }
+              - column: { name: description, value: "Проблемы с входом и доступом" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, valueNumeric: 2 }
+              - column: { name: name, value: "Оплата" }
+              - column: { name: description, value: "Проблемы с платежами и картами" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, valueNumeric: 3 }
+              - column: { name: name, value: "Техническая проблема" }
+              - column: { name: description, value: "Ошибки системы и сбои" }
+
+        # Вставка ключевых слов с весами
+        - insert:
+            tableName: keyword_weights
+            columns:
+              - column: { name: category_name, value: "Авторизация" }
+              - column: { name: keyword, value: "логин" }
+              - column: { name: weight, valueNumeric: 10.0 }
+              - column: { name: created_at, valueDate: "${now}" }
+        - insert:
+            tableName: keyword_weights
+            columns:
+              - column: { name: category_name, value: "Авторизация" }
+              - column: { name: keyword, value: "пароль" }
+              - column: { name: weight, valueNumeric: 10.0 }
+              - column: { name: created_at, valueDate: "${now}" }
+        - insert:
+            tableName: keyword_weights
+            columns:
+              - column: { name: category_name, value: "Авторизация" }
+              - column: { name: keyword, value: "войти" }
+              - column: { name: weight, valueNumeric: 8.0 }
+              - column: { name: created_at, valueDate: "${now}" }
+        - insert:
+            tableName: keyword_weights
+            columns:
+              - column: { name: category_name, value: "Оплата" }
+              - column: { name: keyword, value: "оплата" }
+              - column: { name: weight, valueNumeric: 15.0 }
+              - column: { name: created_at, valueDate: "${now}" }
+        - insert:
+            tableName: keyword_weights
+            columns:
+              - column: { name: category_name, value: "Оплата" }
+              - column: { name: keyword, value: "оплатить" }
+              - column: { name: weight, valueNumeric: 12.0 }
+              - column: { name: created_at, valueDate: "${now}" }
+        - insert:
+            tableName: keyword_weights
+            columns:
+              - column: { name: category_name, value: "Оплата" }
+              - column: { name: keyword, value: "карта" }
+              - column: { name: weight, valueNumeric: 8.0 }
+              - column: { name: created_at, valueDate: "${now}" }
+        - insert:
+            tableName: keyword_weights
+            columns:
+              - column: { name: category_name, value: "Техническая проблема" }
+              - column: { name: keyword, value: "ошибка" }
+              - column: { name: weight, valueNumeric: 10.0 }
+              - column: { name: created_at, valueDate: "${now}" }
+        - insert:
+            tableName: keyword_weights
+            columns:
+              - column: { name: category_name, value: "Техническая проблема" }
+              - column: { name: keyword, value: "сервер" }
+              - column: { name: weight, valueNumeric: 9.0 }
+              - column: { name: created_at, valueDate: "${now}" }
+        - insert:
+            tableName: keyword_weights
+            columns:
+              - column: { name: category_name, value: "Техническая проблема" }
+              - column: { name: keyword, value: "сбой" }
+              - column: { name: weight, valueNumeric: 7.0 }
+              - column: { name: created_at, valueDate: "${now}" }
