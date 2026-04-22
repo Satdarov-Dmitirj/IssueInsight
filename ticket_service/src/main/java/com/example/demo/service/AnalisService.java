@@ -1,4 +1,3 @@
-
 package com.example.demo.service;
 
 import com.example.demo.entity.AnaliseMethod;
@@ -7,38 +6,41 @@ import com.example.demo.entity.KeywordWeight;
 import com.example.demo.entity.Ticket;
 import com.example.demo.repository.AnalisRepository;
 import com.example.demo.repository.KeywordWeightRepository;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class AnalisService {
+
     private static final Logger logger = LoggerFactory.getLogger(AnalisService.class);
+
     private final AnalisRepository analisRepository;
     private final KeywordWeightRepository keywordWeightRepository;
+    private final KeywordLearningService keywordLearningService; // внедряем новый сервис
 
-    @Autowired
-    public AnalisService(AnalisRepository analisRepository, KeywordWeightRepository keywordWeightRepository) {
-        this.analisRepository = analisRepository;
-        this.keywordWeightRepository = keywordWeightRepository;
-    }
-
-    public AnalysisResult analysisTicket(Ticket ticketCreateRequest) {
-        String text = (ticketCreateRequest.getSubject() + " " + ticketCreateRequest.getDescription()).toLowerCase();
-        logger.debug("Analyzing ticket: {}", ticketCreateRequest.getId());
+    public AnalysisResult analysisTicket(Ticket ticket) {
+        String text = (ticket.getSubject() + " " + ticket.getDescription()).toLowerCase();
+        logger.debug("Анализ тикета id={}", ticket.getId());
 
         List<KeywordWeight> allKeywords = keywordWeightRepository.findAll();
 
+        // Группируем ключевые слова по категориям
         Map<String, List<KeywordWeight>> keywordsByCategory = new HashMap<>();
         for (KeywordWeight kw : allKeywords) {
-            keywordsByCategory.computeIfAbsent(kw.getCategoryName(), k -> new ArrayList<>()).add(kw);
+            keywordsByCategory
+                    .computeIfAbsent(kw.getCategoryName(), k -> new ArrayList<>())
+                    .add(kw);
         }
 
+        // Считаем очки для каждой категории
         Map<String, Double> causeScores = new HashMap<>();
 
         for (Map.Entry<String, List<KeywordWeight>> entry : keywordsByCategory.entrySet()) {
@@ -51,8 +53,7 @@ public class AnalisService {
                     .sum();
 
             for (KeywordWeight keywordWeight : keywords) {
-                String keyword = keywordWeight.getKeyword().toLowerCase();
-                if (text.contains(keyword)) {
+                if (text.contains(keywordWeight.getKeyword().toLowerCase())) {
                     score += keywordWeight.getWeight();
                 }
             }
@@ -68,28 +69,38 @@ public class AnalisService {
 
         if (causeScores.isEmpty()) {
             detectedCause = "Другое";
-            confidence = 10;
+            confidence = 10.0;
             description = "Автоматически не удалось определить причину. Требуется ручной анализ.";
         } else {
             Map.Entry<String, Double> best = causeScores.entrySet()
                     .stream()
                     .max(Map.Entry.comparingByValue())
-                    .orElseThrow(() -> new RuntimeException("No cause found"));
+                    .orElseThrow(() -> new RuntimeException("Ошибка определения категории"));
 
             detectedCause = best.getKey();
-            confidence = Math.min(best.getValue(), 100);
-            description = "Определена причина: " + detectedCause + " (уверенность " + confidence + "%)";
+            confidence = Math.min(best.getValue(), 100.0);
+            description = String.format(
+                    "Определена причина: %s (уверенность %.1f%%)", detectedCause, confidence
+            );
         }
 
+        logger.info("Тикет id={}: категория='{}', уверенность={:.1f}%",
+                ticket.getId(), detectedCause, confidence);
+
         AnalysisResult result = new AnalysisResult();
-        result.setTicket(ticketCreateRequest);
+        result.setTicket(ticket);
         result.setDetectedCause(detectedCause);
         result.setCauseDescription(description);
         result.setAnaliseScore(confidence);
         result.setAnaliseDate(LocalDateTime.now());
         result.setAnaliseMethod(AnaliseMethod.AUTOMATIC);
 
-        return analisRepository.save(result);
+        AnalysisResult savedResult = analisRepository.save(result);
+
+        String ticketText = ticket.getSubject() + " " + ticket.getDescription();
+        keywordLearningService.learnFromTicket(ticketText, detectedCause, confidence);
+
+        return savedResult;
     }
 
     public Page<AnalysisResult> getAllTickets(Pageable pageable) {
@@ -105,21 +116,26 @@ public class AnalisService {
     }
 
     public void addOrUpdateKeywordWeight(String categoryName, String keyword, Double weight) {
-        KeywordWeight existing = keywordWeightRepository.findByCategoryNameAndKeywordContainingIgnoreCase(categoryName, keyword)
-                .stream()
-                .findFirst()
-                .orElse(null);
-
-        if (existing != null) {
-            existing.setWeight(weight);
-            keywordWeightRepository.save(existing);
-        } else {
-            KeywordWeight newWeight = new KeywordWeight();
-            newWeight.setCategoryName(categoryName);
-            newWeight.setKeyword(keyword);
-            newWeight.setWeight(weight);
-            newWeight.setCreatedAt(LocalDateTime.now());
-            keywordWeightRepository.save(newWeight);
-        }
+        keywordWeightRepository
+                .findByCategoryNameAndKeyword(categoryName, keyword)
+                .ifPresentOrElse(
+                        existing -> {
+                            existing.setWeight(weight);
+                            keywordWeightRepository.save(existing);
+                            logger.info("Обновлён вес слова '{}' в категории '{}': {}",
+                                    keyword, categoryName, weight);
+                        },
+                        () -> {
+                            KeywordWeight newWeight = new KeywordWeight();
+                            newWeight.setCategoryName(categoryName);
+                            newWeight.setKeyword(keyword);
+                            newWeight.setWeight(weight);
+                            newWeight.setCreatedAt(LocalDateTime.now());
+                            keywordWeightRepository.save(newWeight);
+                            logger.info("Добавлено слово '{}' в категорию '{}' с весом {}",
+                                    keyword, categoryName, weight);
+                        }
+                );
     }
 }
+ 

@@ -25,7 +25,6 @@ public class TicketService implements TicketServiceInterface {
     private final AnalisRepository analisRepository;
     private final AnalisService analisService;
 
-
     @Override
     public TicketDto createTicket(TicketCreateRequest request) {
         Ticket ticket = new Ticket();
@@ -49,17 +48,12 @@ public class TicketService implements TicketServiceInterface {
 
         savedTicket.setCategory(category);
 
-
-        Ticket finalTicket = ticketRepository.save(savedTicket);
-
-        return toDto(finalTicket);
+        return toDto(ticketRepository.save(savedTicket));
     }
-
 
     @Override
     public Optional<TicketDto> getTicketById(Long id) {
-        return ticketRepository.findById(id)
-                .map(this::toDto);
+        return ticketRepository.findById(id).map(this::toDto);
     }
 
     @Override
@@ -69,7 +63,6 @@ public class TicketService implements TicketServiceInterface {
                 .map(this::toDto)
                 .toList();
     }
-
 
     @Override
     public TicketDto changeTicketStatus(Long id, TicketStatus status) {
@@ -92,30 +85,26 @@ public class TicketService implements TicketServiceInterface {
 
         ticket.setTicketStatus(TicketStatus.CLOSED);
         ticket.setResolvedAt(LocalDateTime.now());
-        ticket.setDescription(ticket.getDescription() + "Решение: " + resolution);
+        ticket.setDescription(ticket.getDescription() + "\nРешение: " + resolution);
 
         return toDto(ticketRepository.save(ticket));
     }
 
-
     @Override
     public List<TicketDto> getTicketsByCategory(Long categoryId) {
-        return ticketRepository.findAll()
+        return ticketRepository.findByCategoryId(categoryId)
                 .stream()
-                .filter(t -> t.getCategory() != null && t.getCategory().getId().equals(categoryId))
                 .map(this::toDto)
                 .toList();
     }
 
     @Override
     public List<TicketDto> getTicketsByStatus(TicketStatus status) {
-        return ticketRepository.findAll()
+        return ticketRepository.findByTicketStatus(status)
                 .stream()
-                .filter(t -> t.getTicketStatus() == status)
                 .map(this::toDto)
                 .toList();
     }
-
 
     @Override
     public List<AnalisResultRespouns> getAnalysisResults(Long ticketId) {
@@ -124,7 +113,6 @@ public class TicketService implements TicketServiceInterface {
                 .map(AnalysisResultMapper.INSTANCE::toDto)
                 .toList();
     }
-
 
     private TicketDto toDto(Ticket ticket) {
         return new TicketDto(

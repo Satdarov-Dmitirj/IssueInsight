@@ -31,8 +31,7 @@ public class KeywordController {
     })
     @GetMapping
     public ResponseEntity<List<KeywordWeightDto>> getAllKeywords() {
-        List<KeywordWeightDto> keywords = keywordWeightService.getAll();
-        return ResponseEntity.ok(keywords);
+        return ResponseEntity.ok(keywordWeightService.getAll());
     }
 
     @Operation(summary = "Получить ключевое слово по ID")
@@ -40,13 +39,12 @@ public class KeywordController {
             @ApiResponse(responseCode = "200", description = "Ключевое слово найдено"),
             @ApiResponse(responseCode = "404", description = "Ключевое слово не найдено")
     })
-    @GetMapping("id")
+    @GetMapping("/{id}")
     public ResponseEntity<KeywordWeightDto> getKeywordById(
             @Parameter(description = "ID ключевого слова", example = "1")
             @PathVariable Long id) {
 
-        KeywordWeightDto keyword = keywordWeightService.findById(id);
-        return ResponseEntity.ok(keyword);
+        return ResponseEntity.ok(keywordWeightService.findById(id));
     }
 
     @Operation(summary = "Получить ключевые слова по категории")
@@ -54,13 +52,12 @@ public class KeywordController {
             @ApiResponse(responseCode = "200", description = "Список ключевых слов получен"),
             @ApiResponse(responseCode = "404", description = "Категория не найдена")
     })
-    @GetMapping("by-category")
+    @GetMapping("/by-category")
     public ResponseEntity<List<KeywordWeightDto>> getKeywordsByCategory(
-            @Parameter(description = "Название категории", example = "Проблемы с авторизацией")
+            @Parameter(description = "Название категории", example = "Оплата")
             @RequestParam String categoryName) {
 
-        List<KeywordWeightDto> keywords = keywordWeightService.getByCategory(categoryName);
-        return ResponseEntity.ok(keywords);
+        return ResponseEntity.ok(keywordWeightService.getByCategory(categoryName));
     }
 
     @Operation(summary = "Создать новое ключевое слово")
@@ -72,8 +69,7 @@ public class KeywordController {
     public ResponseEntity<KeywordWeightDto> createKeyword(
             @Valid @RequestBody KeywordWeightRequest request) {
 
-        KeywordWeightDto created = keywordWeightService.createWeight(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return ResponseEntity.status(HttpStatus.CREATED).body(keywordWeightService.createWeight(request));
     }
 
     @Operation(summary = "Обновить ключевое слово")
@@ -82,14 +78,13 @@ public class KeywordController {
             @ApiResponse(responseCode = "404", description = "Ключевое слово не найдено"),
             @ApiResponse(responseCode = "400", description = "Некорректные данные")
     })
-    @PutMapping("id")
+    @PutMapping("/{id}")
     public ResponseEntity<KeywordWeightDto> updateKeyword(
             @Parameter(description = "ID ключевого слова", example = "1")
             @PathVariable Long id,
             @Valid @RequestBody KeywordWeightRequest request) {
 
-        KeywordWeightDto updated = keywordWeightService.updateWeight(id, request);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(keywordWeightService.updateWeight(id, request));
     }
 
     @Operation(summary = "Удалить ключевое слово")
@@ -97,7 +92,7 @@ public class KeywordController {
             @ApiResponse(responseCode = "204", description = "Ключевое слово удалено"),
             @ApiResponse(responseCode = "404", description = "Ключевое слово не найдено")
     })
-    @DeleteMapping("id")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteKeyword(
             @Parameter(description = "ID ключевого слова", example = "1")
             @PathVariable Long id) {
@@ -111,9 +106,9 @@ public class KeywordController {
             @ApiResponse(responseCode = "204", description = "Ключевые слова категории удалены"),
             @ApiResponse(responseCode = "404", description = "Категория не найдена")
     })
-    @DeleteMapping("by-category")
+    @DeleteMapping("/by-category")
     public ResponseEntity<Void> deleteKeywordsByCategory(
-            @Parameter(description = "Название категории", example = "Проблемы с авторизацией")
+            @Parameter(description = "Название категории", example = "Оплата")
             @RequestParam String categoryName) {
 
         keywordWeightService.deleteByCategoryName(categoryName);
@@ -125,7 +120,7 @@ public class KeywordController {
             @ApiResponse(responseCode = "201", description = "Ключевые слова созданы"),
             @ApiResponse(responseCode = "400", description = "Некорректные данные")
     })
-    @PostMapping("bulk")
+    @PostMapping("/bulk")
     public ResponseEntity<List<KeywordWeightDto>> createKeywordsBulk(
             @Valid @RequestBody List<KeywordWeightRequest> requests) {
 
