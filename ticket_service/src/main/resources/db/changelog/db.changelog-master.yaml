@@ -11,3 +11,6 @@ databaseChangeLog:
   - include:
       file: 006-create-stop-words-table.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 007-fix-ticket-status-constraint.sql
+      relativeToChangelogFile: true
