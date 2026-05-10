@@ -13,8 +13,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME:your@gmail.com}
-    password: ${MAIL_PASSWORD:your-app-password}
+    username: ${MAIL_USERNAME:dmitrijsatdarov@gmail.com}
+    password: ${MAIL_PASSWORD:DMS_55455999}
     properties:
       mail:
         smtp:
@@ -25,7 +25,7 @@ spring:
 mail:
   service:
     enabled: ${MAIL_ENABLED:true}
-    from: ${MAIL_FROM:noreply@issueinsight.ru}
+    from: ${MAIL_FROM:dmitrijsatdarov@gmail.com}
 
 server:
   port: 8081

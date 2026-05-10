@@ -19,7 +19,7 @@ public class EmailNotificationDto {
     private String body;
 
     @JsonProperty("type")
-    private String type; // "TICKET_CREATED", "STATUS_CHANGED", "TICKET_CLOSED"
+    private String type;
 
     @JsonProperty("ticketId")
     private String ticketId;
@@ -29,4 +29,5 @@ public class EmailNotificationDto {
 
     @JsonProperty("resolution")
     private String resolution;
+
 }

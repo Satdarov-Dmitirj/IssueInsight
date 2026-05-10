@@ -22,9 +22,11 @@ public class AnalisService {
 
     private static final Logger logger = LoggerFactory.getLogger(AnalisService.class);
 
+    private static final int TOP_N_FOR_NORMALIZATION = 5;
+
     private final AnalisRepository analisRepository;
     private final KeywordWeightRepository keywordWeightRepository;
-    private final KeywordLearningService keywordLearningService; // внедряем новый сервис
+    private final KeywordLearningService keywordLearningService;
 
     public AnalysisResult analysisTicket(Ticket ticket) {
         String text = (ticket.getSubject() + " " + ticket.getDescription()).toLowerCase();
@@ -32,7 +34,6 @@ public class AnalisService {
 
         List<KeywordWeight> allKeywords = keywordWeightRepository.findAll();
 
-        // Группируем ключевые слова по категориям
         Map<String, List<KeywordWeight>> keywordsByCategory = new HashMap<>();
         for (KeywordWeight kw : allKeywords) {
             keywordsByCategory
@@ -40,26 +41,36 @@ public class AnalisService {
                     .add(kw);
         }
 
-        // Считаем очки для каждой категории
         Map<String, Double> causeScores = new HashMap<>();
 
         for (Map.Entry<String, List<KeywordWeight>> entry : keywordsByCategory.entrySet()) {
             String category = entry.getKey();
             List<KeywordWeight> keywords = entry.getValue();
 
-            double score = 0;
-            double maxPossibleScore = keywords.stream()
-                    .mapToDouble(KeywordWeight::getWeight)
-                    .sum();
-
-            for (KeywordWeight keywordWeight : keywords) {
-                if (text.contains(keywordWeight.getKeyword().toLowerCase())) {
-                    score += keywordWeight.getWeight();
+            double matchedScore = 0;
+            int matchedCount = 0;
+            for (KeywordWeight kw : keywords) {
+                if (text.contains(kw.getKeyword().toLowerCase())) {
+                    matchedScore += kw.getWeight();
+                    matchedCount++;
                 }
             }
 
-            if (score > 0) {
-                causeScores.put(category, (score / maxPossibleScore) * 100);
+            if (matchedScore > 0) {
+                double topNScore = keywords.stream()
+                        .mapToDouble(KeywordWeight::getWeight)
+                        .boxed()
+                        .sorted(Comparator.reverseOrder())
+                        .limit(TOP_N_FOR_NORMALIZATION)
+                        .mapToDouble(Double::doubleValue)
+                        .sum();
+
+                double confidence = (matchedScore / topNScore) * 100.0;
+
+                double matchBonus = Math.min(matchedCount * 3.0, 15.0);
+                confidence = Math.min(confidence + matchBonus, 100.0);
+
+                causeScores.put(category, confidence);
             }
         }
 
@@ -84,8 +95,8 @@ public class AnalisService {
             );
         }
 
-        logger.info("Тикет id={}: категория='{}', уверенность={:.1f}%",
-                ticket.getId(), detectedCause, confidence);
+        logger.info("Тикет id={}: категория='{}', уверенность={}%",
+                ticket.getId(), detectedCause, String.format("%.1f", confidence));
 
         AnalysisResult result = new AnalysisResult();
         result.setTicket(ticket);
@@ -138,4 +149,3 @@ public class AnalisService {
                 );
     }
 }
- 
