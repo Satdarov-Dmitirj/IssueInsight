@@ -21,13 +21,16 @@ public class EmailNotificationHandler {
 
     @KafkaListener(topics = "email_notifications", groupId = "notification-group")
     public void handleEmailNotification(String message) {
+        System.out.println("=== KAFKA MESSAGE RECEIVED: " + message);
         logger.info("Received message from Kafka: {}", message);
 
         try {
             EmailNotificationDto notification = objectMapper.readValue(message, EmailNotificationDto.class);
+            System.out.println("=== TYPE: " + notification.getType() + ", TO: " + notification.getTo());
 
             switch (notification.getType()) {
                 case "TICKET_CREATED":
+                    System.out.println("=== Sending TICKET_CREATED email to: " + notification.getTo());
                     mailService.sendTicketCreatedNotification(
                             notification.getTo(),
                             notification.getTicketId(),
@@ -37,6 +40,7 @@ public class EmailNotificationHandler {
                     break;
 
                 case "STATUS_CHANGED":
+                    System.out.println("=== Sending STATUS_CHANGED email to: " + notification.getTo());
                     mailService.sendTicketStatusChangeNotification(
                             notification.getTo(),
                             notification.getTicketId(),
@@ -45,6 +49,7 @@ public class EmailNotificationHandler {
                     break;
 
                 case "TICKET_CLOSED":
+                    System.out.println("=== Sending TICKET_CLOSED email to: " + notification.getTo());
                     mailService.sendTicketClosedNotification(
                             notification.getTo(),
                             notification.getTicketId(),
@@ -53,10 +58,15 @@ public class EmailNotificationHandler {
                     break;
 
                 default:
-                    logger.warn("Unknown notification type:", notification.getType());
+                    System.out.println("=== UNKNOWN TYPE: " + notification.getType());
+                    logger.warn("Unknown notification type: {}", notification.getType());
             }
 
+            System.out.println("=== EMAIL PROCESSING DONE");
+
         } catch (Exception e) {
+            System.out.println("=== ERROR: " + e.getMessage());
+            e.printStackTrace();
             logger.error("Failed to process email notification", e);
         }
     }

@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - kafka-net
+
   kafka:
     image: confluentinc/cp-kafka:7.3.0
     container_name: kafka
@@ -21,17 +33,6 @@ services:
     networks:
       - kafka-net
 
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.3.0
-    container_name: zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
-    networks:
-      - kafka-net
-
   postgres:
     container_name: docker_kafka
     image: postgres:16-alpine
@@ -44,6 +45,44 @@ services:
       - "5432:5432"
     networks:
       - postgres_network
+
+  ticket_service:
+    build:
+      context: ..
+      dockerfile: ticket_service/Dockerfile
+    container_name: ticket_service
+    ports:
+      - "8082:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DATABASE_URL: jdbc:postgresql://postgres:5432/bank
+      POSTGRES_USER: bank
+      POSTGRES_PASSWORD: bank
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      - postgres
+      - kafka
+    networks:
+      - kafka-net
+      - postgres_network
+      - elk-net
+
+  emailmodule:
+    build:
+      context: ..
+      dockerfile: emailmodule/Dockerfile
+    container_name: emailmodule
+    ports:
+      - "8081:8081"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MAIL_USERNAME: dmitrijsatdarov@gmail.com
+      MAIL_PASSWORD: vlyt lqzc qeib simx
+      MAIL_FROM: dmitrijsatdarov@gmail.com
+    depends_on:
+      - kafka
+    networks:
+      - kafka-net
 
   elasticsearch:
     image: elasticsearch:8.12.0
