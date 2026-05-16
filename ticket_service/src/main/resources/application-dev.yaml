@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: IssueInsight
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/bank}
+    username: ${POSTGRES_USER:bank}
+    password: ${POSTGRES_PASSWORD:bank}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  kafka:
+    producer:
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+kafka:
+  topics:
+    email-notifications: email_notifications
+
+logging:
+  level:
+    com.example.demo: DEBUG
+    org.springframework.kafka: INFO
+
+server:
+  port: ${SERVER_PORT:8080}

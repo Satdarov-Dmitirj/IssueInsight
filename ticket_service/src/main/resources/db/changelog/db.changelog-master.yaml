@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - include:
+      file: 001-create-user-table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 001_create_analysis_table.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 004-seed-keywords.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 006-create-stop-words-table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 007-fix-ticket-status-constraint.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 008-expand-keywords.sql
+      relativeToChangelogFile: true

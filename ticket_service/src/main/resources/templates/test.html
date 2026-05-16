@@ -1,0 +1,3122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ООО «Агротенд»</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lexend:wght=400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        :root {
+            /* Градиентная палитра */
+            --primary: #6366F1;
+            --primary-light: #818CF8;
+            --primary-dark: #4F46E5;
+            --secondary: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #3B82F6;
+
+            /* Нейтральные цвета */
+            --bg: #F9FAFB;
+            --surface: #FFFFFF;
+            --surface-soft: #F3F4F6;
+            --border: #E5E7EB;
+            --text: #111827;
+            --text-muted: #6B7280;
+            --text-light: #9CA3AF;
+
+            /* Радиусы */
+            --r: 12px;
+            --r-lg: 16px;
+            --r-pill: 9999px;
+
+            /* Тени */
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+            /* Анимации */
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --ease-in: all 0.2s cubic-bezier(0.3, 0, 1, 0.8);
+            --ease-out: all 0.2s cubic-bezier(0, 0, 0.3, 1);
+        }
+
+        /* Темная тема */
+        .theme-dark {
+            --bg: #111827;
+            --surface: #1F2937;
+            --surface-soft: #374151;
+            --border: #374151;
+            --text: #F9FAFB;
+            --text-muted: #9CA3AF;
+            --text-light: #6B7280;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+
+        /* Градиенты */
+        .gradient-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+
+        .gradient-secondary {
+            background: linear-gradient(135deg, var(--secondary), #0D9488);
+        }
+
+        /* Текстуры */
+        .texture-grid {
+            background-image:
+                    linear-gradient(rgba(156, 163, 175, 0.05) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(156, 163, 175, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* === ЭКРАН АВТОРИЗАЦИИ === */
+        #screen-auth {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #EEF2FF 0%, #F0F9FF 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #screen-auth::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+            background: var(--surface);
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            border: 1px solid var(--border);
+        }
+
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-muted);
+        }
+
+        .auth-tab.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .auth-form {
+            padding: 24px;
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .auth-logo-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            box-shadow: var(--shadow-md);
+        }
+
+        .auth-logo-icon svg {
+            width: 32px;
+            height: 32px;
+            color: white;
+        }
+
+        .auth-logo h1 {
+            font-family: 'Lexend', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .form-required::after {
+            content: "*";
+            color: var(--danger);
+            margin-left: 2px;
+        }
+
+        .form-hint {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: var(--r);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            font-family: inherit;
+            font-size: 0.875rem;
+            color: var(--text);
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--r-pill);
+            border: none;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--surface-soft);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface);
+            color: var(--text);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* === ОСНОВНОЙ ЭКРАН === */
+        #screen-app {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        /* TOPBAR */
+        .topbar {
+            height: 64px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .topbar-logo {
+            font-family: 'Lexend', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar-logo i {
+            color: var(--primary);
+        }
+
+        .topbar-role {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: var(--r-pill);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .topbar-role.admin {
+            background: linear-gradient(135deg, #EEF2FF, #F0F9FF);
+            color: var(--primary);
+        }
+
+        .topbar-role.user {
+            background: linear-gradient(135deg, #ECFDF5, #F0FDF4);
+            color: var(--secondary);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar-action {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--r);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .topbar-action:hover {
+            background: var(--surface-soft);
+            color: var(--text);
+        }
+
+        .topbar-action.notifications::after {
+            content: "";
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--danger);
+        }
+
+        .topbar-switch {
+            font-size: 0.875rem;
+            color: var(--primary);
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-family: inherit;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: var(--transition);
+        }
+
+        .topbar-switch:hover {
+            text-decoration: underline;
+            color: var(--primary-dark);
+        }
+
+        /* SIDEBAR + CONTENT */
+        .app-body {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 20px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            position: sticky;
+            top: 64px;
+            height: calc(100vh - 64px);
+            overflow-y: auto;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 12px 12px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 12px;
+        }
+
+        .sidebar-label {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--text-light);
+            letter-spacing: 0.5px;
+            padding: 8px 12px 4px;
+            text-transform: uppercase;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: var(--r);
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            width: 100%;
+            text-align: left;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-btn:hover {
+            background: var(--surface-soft);
+            color: var(--text);
+        }
+
+        .nav-btn.active {
+            background: var(--surface-soft);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-btn.active::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary);
+            border-radius: 0 var(--r) var(--r) 0;
+        }
+
+        .nav-btn svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .nav-btn.active svg {
+            color: var(--primary);
+        }
+
+        .nav-num {
+            margin-left: auto;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--surface-soft);
+            padding: 2px 8px;
+            border-radius: var(--r-pill);
+            transition: var(--transition);
+        }
+
+        .nav-btn.active .nav-num {
+            background: var(--primary);
+            color: white;
+        }
+
+        .content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            min-width: 0;
+        }
+
+        /* === СЕКЦИИ === */
+        .section {
+            display: none;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* === PAGE HEADER === */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .page-title {
+            font-family: 'Lexend', sans-serif;
+            font-size: 1.875rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-title i {
+            color: var(--primary);
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* === КНОПКИ === */
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--r-pill);
+            border: none;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--surface-soft);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface);
+            color: var(--text);
+        }
+
+        .btn-sm {
+            padding: 7px 14px;
+            font-size: 0.75rem;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: var(--r);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #DC2626;
+        }
+
+        /* === STAT CARDS === */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: var(--r-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card-label {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface-soft);
+            margin-right: 8px;
+        }
+
+        .stat-card-icon.open { background: #EEF2FF; color: var(--primary); }
+        .stat-card-icon.progress { background: #FEF3C7; color: var(--warning); }
+        .stat-card-icon.resolved { background: #DCFCE7; color: var(--secondary); }
+        .stat-card-icon.closed { background: #F3F4F6; color: var(--text-light); }
+
+        .stat-card-num {
+            font-size: 2.25rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-card-sub {
+            font-size: 0.8125rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-card-sub i {
+            font-size: 0.75rem;
+        }
+
+        /* === ФИЛЬТРЫ === */
+        .filters {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            background: var(--surface);
+            padding: 16px;
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        .filter-input,
+        .filter-select {
+            padding: 10px 16px;
+            border-radius: var(--r);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            font-family: inherit;
+            font-size: 0.875rem;
+            color: var(--text);
+            outline: none;
+            transition: var(--transition);
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .filter-input:focus,
+        .filter-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .filter-tag {
+            background: var(--surface-soft);
+            padding: 4px 12px;
+            border-radius: var(--r-pill);
+            font-size: 0.8125rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-tag:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .filter-tag i {
+            font-size: 0.75rem;
+        }
+
+        /* === ТАБЛИЦА === */
+        .table-container {
+            background: var(--surface);
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-soft);
+            position: relative;
+        }
+
+        thead th.sortable {
+            cursor: pointer;
+        }
+
+        thead th.sortable:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        thead th::after {
+            content: "⇅";
+            opacity: 0.2;
+            margin-left: 4px;
+            font-size: 0.75rem;
+        }
+
+        thead th.asc::after {
+            content: "↑";
+            opacity: 1;
+        }
+
+        thead th.desc::after {
+            content: "↓";
+            opacity: 1;
+        }
+
+        tbody tr {
+            transition: background 0.1s;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr:hover {
+            background: var(--surface-soft);
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody td {
+            padding: 16px 20px;
+            font-size: 0.875rem;
+            vertical-align: middle;
+            border-top: 1px solid var(--border);
+        }
+
+        .t-id {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-light);
+            font-variant-numeric: tabular-nums;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .t-subject {
+            font-weight: 600;
+            font-size: 0.9375rem;
+            margin-bottom: 2px;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .t-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            max-width: 280px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+        }
+
+        .t-email {
+            font-size: 0.8125rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .t-date {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* === BADGE СТАТУСОВ === */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: var(--r-pill);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.75rem;
+        }
+
+        .badge::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .badge-OPEN {
+            background: #EEF2FF;
+            color: var(--primary);
+        }
+
+        .badge-IN_PROGRESS {
+            background: #FEF3C7;
+            color: var(--warning);
+        }
+
+        .badge-RESOLVED,
+        .badge-RESOULT {
+            background: #DCFCE7;
+            color: var(--secondary);
+        }
+
+        .badge-CLOSED {
+            background: #F3F4F6;
+            color: var(--text-light);
+        }
+
+        /* === МОДАЛЬНЫЕ ОКНА === */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal {
+            background: var(--surface);
+            border-radius: var(--r-lg);
+            width: 100%;
+            max-width: 640px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid var(--border);
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 24px 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-family: 'Lexend', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-title i {
+            color: var(--primary);
+        }
+
+        .modal-x {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--r);
+            background: var(--surface-soft);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .modal-x:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* === ФОРМА === */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .form-required::after {
+            content: "*";
+            color: var(--danger);
+            margin-left: 2px;
+        }
+
+        .form-hint {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: var(--r);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            font-family: inherit;
+            font-size: 0.875rem;
+            color: var(--text);
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* === ДЕТАЛИ ТИКЕТА === */
+        .ticket-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .meta-item {
+            background: var(--surface-soft);
+            border-radius: var(--r);
+            padding: 14px;
+            transition: var(--transition);
+        }
+
+        .meta-item:hover {
+            background: var(--surface);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .meta-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 4px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .meta-val {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .ticket-desc-block {
+            background: var(--surface-soft);
+            border-radius: var(--r);
+            padding: 16px;
+            font-size: 0.875rem;
+            color: var(--text);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .status-actions {
+            margin-top: 16px;
+        }
+
+        .status-actions-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .status-action-btn {
+            padding: 12px 8px;
+            border-radius: var(--r);
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+        }
+
+        .status-action-btn i {
+            font-size: 1.1rem;
+        }
+
+        .status-action-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #EEF2FF;
+        }
+
+        .status-action-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .status-action-btn.s-progress:hover:not(:disabled) {
+            border-color: var(--warning);
+            color: var(--warning);
+            background: #FEF3C7;
+        }
+
+        .status-action-btn.s-resolve:hover:not(:disabled) {
+            border-color: var(--secondary);
+            color: var(--secondary);
+            background: #DCFCE7;
+        }
+
+        .status-action-btn.s-close:hover:not(:disabled) {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: #FEE2E2;
+        }
+
+        /* === CONFIDENCE BAR === */
+        .conf-wrap {
+            margin: 16px 0;
+        }
+
+        .conf-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .conf-bar {
+            background: var(--surface-soft);
+            height: 8px;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .conf-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 9999px;
+            transition: width 0.8s ease;
+        }
+
+        /* === КАТЕГОРИИ === */
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .cat-card {
+            background: var(--surface);
+            border-radius: var(--r-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cat-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .cat-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .cat-card:hover::before {
+            opacity: 1;
+        }
+
+        .cat-name {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        .cat-desc {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 40px;
+        }
+
+        .cat-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .cat-count {
+            font-size: 1.875rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: var(--primary);
+        }
+
+        .cat-count-lbl {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* === ПОЛЬЗОВАТЕЛЬ === */
+        .user-wrap {
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        .user-card {
+            background: var(--surface);
+            border-radius: var(--r-lg);
+            padding: 28px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .user-card-title {
+            font-family: 'Lexend', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-card-title i {
+            color: var(--primary);
+        }
+
+        .ticket-status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ticket-status-row:last-child {
+            border-bottom: none;
+        }
+
+        .tsr-left {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tsr-subject {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .tsr-date {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        /* === TOASTS === */
+        .toasts {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 320px;
+            width: 100%;
+        }
+
+        .toast {
+            background: var(--surface);
+            color: var(--text);
+            padding: 16px 20px;
+            border-radius: var(--r);
+            font-size: 0.875rem;
+            font-weight: 500;
+            min-width: 240px;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow-md);
+            border-left: 4px solid var(--primary);
+            border-radius: 0 var(--r) var(--r) 0;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.ok {
+            border-left-color: var(--secondary);
+        }
+
+        .toast.err {
+            border-left-color: var(--danger);
+        }
+
+        .toast.warn {
+            border-left-color: var(--warning);
+        }
+
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .toast.ok .toast-icon {
+            background: #DCFCE7;
+            color: var(--secondary);
+        }
+
+        .toast.err .toast-icon {
+            background: #FEE2E2;
+            color: var(--danger);
+        }
+
+        .toast.warn .toast-icon {
+            background: #FEF3C7;
+            color: var(--warning);
+        }
+
+        /* === EMPTY STATE === */
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+            opacity: 0.6;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            background: var(--surface-soft);
+            border-radius: 16px;
+        }
+
+        .empty h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .empty p {
+            font-size: 0.875rem;
+        }
+
+        .empty-action {
+            margin-top: 20px;
+        }
+
+        /* === DRAG & DROP === */
+        .draggable {
+            cursor: grab;
+            transition: var(--transition);
+        }
+
+        .draggable:active {
+            cursor: grabbing;
+        }
+
+        .draggable-over {
+            background: #EEF2FF !important;
+            border: 1px dashed var(--primary) !important;
+        }
+
+        /* === СКРОЛЛБАР === */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface-soft);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-light);
+        }
+
+        /* === АНИМАЦИИ ЗАГРУЗКИ === */
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .role-cards {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 20px 8px;
+            }
+
+            .sidebar-label, .nav-btn span, .nav-num {
+                display: none;
+            }
+
+            .nav-btn {
+                justify-content: center;
+                padding: 12px;
+            }
+
+            .nav-btn svg {
+                margin: 0;
+            }
+
+            .topbar-actions {
+                display: none;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .page-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .filters {
+                flex-direction: column;
+            }
+
+            .role-logo h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Скрытые элементы для администратора */
+        .admin-hide {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     ЭКРАН АВТОРИЗАЦИИ
+════════════════════════════════════════════════════ -->
+<div id="screen-auth">
+    <div class="auth-container">
+        <div class="auth-tabs">
+            <div class="auth-tab active" onclick="switchAuthTab('login')">Вход</div>
+            <div class="auth-tab" onclick="switchAuthTab('register')">Регистрация</div>
+        </div>
+
+        <div class="auth-form" id="auth-form">
+            <div class="auth-logo">
+                <div class="auth-logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    </svg>
+                </div>
+                <h1>ООО «Агротенд»</h1>
+                <p style="color: var(--text-muted); font-size: 0.875rem;">Система управления обращениями</p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Логин</label>
+                <input class="form-control" id="auth-login" placeholder="Введите логин" value="DSatdarov">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Пароль</label>
+                <input class="form-control" id="auth-password" type="password" placeholder="Введите пароль" value="Dsatdarov-19">
+            </div>
+
+            <button class="btn btn-primary" id="auth-submit" onclick="authenticate()">
+                <i class="fas fa-sign-in-alt"></i> Войти
+            </button>
+
+            <div class="auth-footer">
+                <a href="#" onclick="resetPassword()">Забыли пароль?</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     ОСНОВНОЙ ЭКРАН
+════════════════════════════════════════════════════ -->
+<div id="screen-app">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div class="topbar-logo">
+            <i class="fas fa-chart-line"></i>
+            ООО «Агротенд»
+        </div>
+        <span class="topbar-role" id="topbar-role-badge"></span>
+
+        <div class="topbar-actions">
+            <div class="topbar-action notifications" title="Уведомления">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="topbar-action theme-toggle" title="Сменить тему">
+                <i class="fas fa-moon"></i>
+            </div>
+        </div>
+
+        <button class="topbar-switch" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Выйти
+        </button>
+    </div>
+
+    <div class="app-body">
+
+        <!-- SIDEBAR (только для админа) -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-label">Основное</div>
+            </div>
+
+            <button class="nav-btn active" onclick="showSection('dashboard')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                </svg>
+                Dashboard
+                <span class="nav-num" id="n-total">0</span>
+            </button>
+            <button class="nav-btn" onclick="showSection('tickets')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Тикеты
+                <span class="nav-num" id="n-open">0</span>
+            </button>
+            <button class="nav-btn" onclick="showSection('categories')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                Категории
+                <span class="nav-num" id="n-cats">0</span>
+            </button>
+            <button class="nav-btn" onclick="showSection('analysis')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 0c-1.1.65-2 1.71-2 2.92V19a2 2 0 002 2h14a2 2 0 002-2v-1.08c0-1.2-.9-2.27-2-2.92M9 19c0-1.21-.9-2.27-2-2.92V5a2 2 0 012-2h6a2 2 0 012 2v11.08c-1.1.65-2 1.71-2 2.92"></path>
+                </svg>
+                Анализ
+            </button>
+        </aside>
+
+        <!-- CONTENT -->
+        <main class="content">
+
+            <!-- DASHBOARD -->
+            <div class="section active" id="section-dashboard">
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </h1>
+                    <div class="page-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="loadAll()">
+                            <i class="fas fa-sync-alt"></i> Обновить
+                        </button>
+                        <button class="btn btn-primary btn-sm admin-hide" onclick="openM('m-create')">
+                            <i class="fas fa-plus"></i> Тикет
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card" onclick="filterTo('OPEN')">
+                        <div class="stat-card-label">
+                            <div class="stat-card-icon open">
+                                <i class="fas fa-inbox"></i>
+                            </div>
+                            Открытые
+                        </div>
+                        <div class="stat-card-num" id="d-open">—</div>
+                        <div class="stat-card-sub">
+                            <i class="fas fa-clock"></i> Требуют внимания
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="filterTo('IN_PROGRESS')">
+                        <div class="stat-card-label">
+                            <div class="stat-card-icon progress">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            В работе
+                        </div>
+                        <div class="stat-card-num" id="d-prog">—</div>
+                        <div class="stat-card-sub">
+                            <i class="fas fa-spinner"></i> Обрабатываются
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="filterTo('RESOLVED')">
+                        <div class="stat-card-label">
+                            <div class="stat-card-icon resolved">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            Решённые
+                        </div>
+                        <div class="stat-card-num" id="d-res">—</div>
+                        <div class="stat-card-sub">
+                            <i class="fas fa-history"></i> Ожидают закрытия
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="filterTo('CLOSED')">
+                        <div class="stat-card-label">
+                            <div class="stat-card-icon closed">
+                                <i class="fas fa-archive"></i>
+                            </div>
+                            Закрытые
+                        </div>
+                        <div class="stat-card-num" id="d-cls">—</div>
+                        <div class="stat-card-sub">
+                            <i class="fas fa-box"></i> Архив
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-header" style="margin-top:8px">
+                    <span style="font-size:1.125rem;font-weight:700">
+                        <i class="fas fa-history" style="color: var(--text-light); margin-right: 6px;"></i> Последние тикеты
+                    </span>
+                    <div class="page-actions">
+                        <button class="btn btn-icon btn-secondary" title="Группировать по статусу">
+                            <i class="fas fa-layer-group"></i>
+                        </button>
+                        <button class="btn btn-icon btn-secondary" title="Сортировать">
+                            <i class="fas fa-sort"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container" id="recent-tbl"></div>
+            </div>
+
+            <!-- TICKETS -->
+            <div class="section" id="section-tickets">
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="fas fa-ticket-alt"></i> Тикеты
+                    </h1>
+                    <div class="page-actions">
+                        <button class="btn btn-secondary" onclick="toggleFilters()">
+                            <i class="fas fa-filter"></i> Фильтры
+                        </button>
+                        <button class="btn btn-primary admin-hide" onclick="openM('m-create')">
+                            <i class="fas fa-plus"></i> Новый тикет
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filters" id="tickets-filters">
+                    <div class="filter-input-group" style="flex: 1; min-width: 240px;">
+                        <input class="filter-input" id="f-q" placeholder="Поиск по теме, описанию или email..." oninput="renderTickets()">
+                        <i class="fas fa-search" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-light);"></i>
+                    </div>
+
+                    <select class="filter-select" id="f-s" onchange="renderTickets()">
+                        <option value="">Все статусы</option>
+                        <option value="OPEN">Открытые</option>
+                        <option value="IN_PROGRESS">В работе</option>
+                        <option value="RESOLVED">Решённые</option>
+                        <option value="CLOSED">Закрытые</option>
+                    </select>
+
+                    <select class="filter-select" id="f-c" onchange="renderTickets()">
+                        <option value="">Все категории</option>
+                    </select>
+
+                    <div class="filter-tag" onclick="clearF()">
+                        <i class="fas fa-times"></i> Сбросить
+                    </div>
+                </div>
+
+                <div class="table-container" id="tickets-tbl"></div>
+            </div>
+
+            <!-- CATEGORIES -->
+            <div class="section" id="section-categories">
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="fas fa-tags"></i> Категории
+                    </h1>
+                    <button class="btn btn-primary" onclick="openM('m-cat')">
+                        <i class="fas fa-plus"></i> Новая категория
+                    </button>
+                </div>
+                <div class="cat-grid" id="cats-grid"></div>
+            </div>
+
+            <!-- ANALYSIS -->
+            <div class="section" id="section-analysis">
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="fas fa-brain"></i> Анализ тикетов
+                    </h1>
+                </div>
+
+                <div class="filters" style="margin-bottom: 24px;">
+                    <div class="filter-input-group" style="position: relative; flex: 1; min-width: 240px;">
+                        <input class="filter-input" id="a-id" type="number" placeholder="Введите ID тикета для анализа...">
+                        <i class="fas fa-magnifying-glass" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-light);"></i>
+                    </div>
+                    <button class="btn btn-primary" onclick="runAnalysis()">
+                        <i class="fas fa-microscope"></i> Анализировать
+                    </button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('a-id').value='';document.getElementById('a-out').innerHTML=''">
+                        <i class="fas fa-eraser"></i> Очистить
+                    </button>
+                </div>
+
+                <div id="a-out"></div>
+            </div>
+
+            <!-- USER SCREEN -->
+            <div class="section" id="section-user">
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="fas fa-user-headset"></i> Моё обращение
+                    </h1>
+                </div>
+
+                <div class="user-wrap">
+                    <div class="user-card">
+                        <div class="user-card-title">
+                            <i class="fas fa-paper-plane"></i> Создать обращение
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="form-required">Тема</span>
+                                <span class="form-hint">Кратко опишите проблему</span>
+                            </label>
+                            <input class="form-control" id="u-subject" placeholder="Например: Проблема с авторизацией">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="form-required">Описание</span>
+                                <span class="form-hint">Подробно опишите ситуацию</span>
+                            </label>
+                            <textarea class="form-control" id="u-desc" placeholder="Что происходит, когда вы пытаетесь авторизоваться? Какие ошибки видите?"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="form-required">Ваш email</span>
+                                <span class="form-hint">Мы отправим уведомления на этот адрес</span>
+                            </label>
+                            <input class="form-control" id="u-email" type="email" placeholder="you@example.com">
+                        </div>
+
+                        <button class="btn btn-primary gradient-primary" style="width: 100%" onclick="userCreate()">
+                            <i class="fas fa-paper-plane"></i> Отправить обращение
+                        </button>
+                    </div>
+
+                    <div class="user-card">
+                        <div class="user-card-title">
+                            <i class="fas fa-search"></i> Проверить статус
+                        </div>
+
+                        <div class="filters" style="margin-bottom:16px">
+                            <div class="filter-input-group" style="position: relative; flex: 1;">
+                                <input class="filter-input" id="u-check-email" placeholder="Введите ваш email..." style="padding-right: 40px;">
+                                <button class="btn-icon btn-secondary" style="position: absolute; right: 4px; top: 4px; width: 32px; height: 32px;" onclick="userCheck()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="u-status-out"></div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<!-- ══════ МОДАЛЫ ══════ -->
+
+<!-- Создание тикета -->
+<div class="overlay" id="m-create">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="fas fa-ticket-alt"></i> Новый тикет
+            </span>
+            <button class="modal-x" onclick="closeM('m-create')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">
+                    <span class="form-required">Тема</span>
+                    <span class="form-hint">Краткое описание проблемы</span>
+                </label>
+                <input class="form-control" id="c-sub" placeholder="Например: Не работает оплата">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    <span class="form-required">Описание</span>
+                    <span class="form-hint">Подробно опишите ситуацию</span>
+                </label>
+                <textarea class="form-control" id="c-desc" placeholder="Какая ошибка возникает? Когда это происходит?"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    <span class="form-required">Email клиента</span>
+                    <span class="form-hint">Для уведомлений о статусе</span>
+                </label>
+                <input class="form-control" id="c-email" type="email" placeholder="client@example.com">
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeM('m-create')">
+                <i class="fas fa-times"></i> Отмена
+            </button>
+            <button class="btn btn-primary" onclick="createTicket()">
+                <i class="fas fa-paper-plane"></i> Создать тикет
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Просмотр тикета -->
+<div class="overlay" id="m-ticket">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title" id="m-ticket-title">
+                <i class="fas fa-ticket-alt"></i> Тикет
+            </span>
+            <button class="modal-x" onclick="closeM('m-ticket')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body" id="m-ticket-body"></div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeM('m-ticket')">
+                <i class="fas fa-times"></i> Закрыть
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Закрытие тикета -->
+<div class="overlay" id="m-close">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="fas fa-archive"></i> Закрыть тикет
+            </span>
+            <button class="modal-x" onclick="closeM('m-close')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">
+                    <span class="form-required">Текст решения</span>
+                    <span class="form-hint">Опишите, как была решена проблема</span>
+                </label>
+                <textarea class="form-control" id="close-res" placeholder="Опишите решение здесь..." style="min-height: 140px"></textarea>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeM('m-close')">
+                <i class="fas fa-times"></i> Отмена
+            </button>
+            <button class="btn btn-danger" onclick="confirmClose()">
+                <i class="fas fa-archive"></i> Закрыть тикет
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Создание категории -->
+<div class="overlay" id="m-cat">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">
+                <i class="fas fa-tag"></i> Новая категория
+            </span>
+            <button class="modal-x" onclick="closeM('m-cat')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">
+                    <span class="form-required">Название</span>
+                    <span class="form-hint">Например: Проблемы с оплатой</span>
+                </label>
+                <input class="form-control" id="cat-name" placeholder="Название категории">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Описание
+                    <span class="form-hint">Дополнительная информация</span>
+                </label>
+                <textarea class="form-control" id="cat-desc" placeholder="Описание категории (необязательно)"></textarea>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeM('m-cat')">
+                <i class="fas fa-times"></i> Отмена
+            </button>
+            <button class="btn btn-primary" onclick="createCategory()">
+                <i class="fas fa-tag"></i> Создать категорию
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toasts" id="toasts"></div>
+
+<script>
+    const API = 'http://localhost:8080';
+    let tickets = [], categories = [], activeId = null, currentUser = null;
+    let sortColumn = 'createdAt';
+    let sortDirection = 'desc';
+
+    // Инициализация темы
+    function initTheme() {
+        // Проверяем сохраненную тему
+        const savedTheme = localStorage.getItem('issueinsight-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        // Устанавливаем тему
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+            document.body.classList.add('theme-dark');
+            document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+        } else {
+            document.body.classList.remove('theme-dark');
+            document.querySelector('.theme-toggle i').className = 'fas fa-moon';
+        }
+
+        // Переключение темы
+        document.querySelector('.theme-toggle').addEventListener('click', () => {
+            if (document.body.classList.contains('theme-dark')) {
+                document.body.classList.remove('theme-dark');
+                document.querySelector('.theme-toggle i').className = 'fas fa-moon';
+                localStorage.setItem('issueinsight-theme', 'light');
+            } else {
+                document.body.classList.add('theme-dark');
+                document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+                localStorage.setItem('issueinsight-theme', 'dark');
+            }
+        });
+    }
+
+    // Переключение фильтров на мобильных
+    function toggleFilters() {
+        const filters = document.getElementById('tickets-filters');
+        filters.style.display = filters.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    // Переключение между формами авторизации
+    function switchAuthTab(tab) {
+        const tabs = document.querySelectorAll('.auth-tab');
+        const form = document.getElementById('auth-form');
+
+        tabs.forEach(t => t.classList.remove('active'));
+
+        if (tab === 'login') {
+            document.querySelector('.auth-tab:nth-child(1)').classList.add('active');
+            form.innerHTML = `
+                <div class="auth-logo">
+                    <div class="auth-logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                            <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                        </svg>
+                    </div>
+                    <h1>ООО «Агротенд»</h1>
+                    <p style="color: var(--text-muted); font-size: 0.875rem;">Система управления обращениями</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Логин</label>
+                    <input class="form-control" id="auth-login" placeholder="Введите логин" value="DSatdarov">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Пароль</label>
+                    <input class="form-control" id="auth-password" type="password" placeholder="Введите пароль" value="Dsatdarov-19">
+                </div>
+
+                <button class="btn btn-primary" onclick="authenticate()">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+
+                <div class="auth-footer">
+                    <a href="#" onclick="resetPassword()">Забыли пароль?</a>
+                </div>
+            `;
+        } else {
+            document.querySelector('.auth-tab:nth-child(2)').classList.add('active');
+            form.innerHTML = `
+                <div class="auth-logo">
+                    <div class="auth-logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                            <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                        </svg>
+                    </div>
+                    <h1>ООО «Агротенд»</h1>
+                    <p style="color: var(--text-muted); font-size: 0.875rem;">Создайте аккаунт для начала работы</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Логин</label>
+                    <input class="form-control" id="reg-login" placeholder="Придумайте логин">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Пароль</label>
+                    <input class="form-control" id="reg-password" type="password" placeholder="Придумайте пароль">
+                </div>
+
+                <button class="btn btn-primary" onclick="registerUser()">
+                    <i class="fas fa-user-plus"></i> Зарегистрироваться
+                </button>
+
+                <div class="auth-footer">
+                    <a href="#" onclick="switchAuthTab('login')">Уже есть аккаунт?</a>
+                </div>
+            `;
+        }
+    }
+
+    // Регистрация пользователя
+    function registerUser() {
+        const login = document.getElementById('reg-login').value.trim();
+        const password = document.getElementById('reg-password').value.trim();
+
+        if (!login || !password) {
+            toast('Заполните все поля', 'warn');
+            return;
+        }
+
+        // Проверка существующих пользователей
+        const users = JSON.parse(localStorage.getItem('issueinsight-users') || '[]');
+        if (users.some(u => u.login === login)) {
+            toast('Логин уже занят', 'err');
+            return;
+        }
+
+        // Добавляем нового пользователя с ролью "user"
+        users.push({
+            login,
+            password,
+            role: 'user',
+            createdAt: new Date().toISOString()
+        });
+
+        localStorage.setItem('issueinsight-users', JSON.stringify(users));
+        toast('Регистрация успешна! Теперь войдите', 'ok');
+
+        // Переключаемся на форму входа
+        switchAuthTab('login');
+    }
+
+    // Аутентификация пользователя
+    function authenticate() {
+        const login = document.getElementById('auth-login').value.trim();
+        const password = document.getElementById('auth-password').value.trim();
+
+        if (!login || !password) {
+            toast('Введите логин и пароль', 'warn');
+            return;
+        }
+
+        // Получаем пользователей из localStorage
+        const users = JSON.parse(localStorage.getItem('issueinsight-users') || '[]');
+
+        // Проверка предопределенного администратора
+        if (login === 'DSatdarov' && password === 'Dsatdarov-19') {
+            currentUser = {
+                login: 'DSatdarov',
+                password: 'Dsatdarov-19',
+                role: 'admin',
+                createdAt: new Date().toISOString()
+            };
+
+            document.getElementById('screen-auth').style.display = 'none';
+            document.getElementById('screen-app').style.display = 'flex';
+
+            const badge = document.getElementById('topbar-role-badge');
+            badge.textContent = 'Администратор';
+            badge.className = 'topbar-role admin';
+
+            document.getElementById('sidebar').style.display = 'flex';
+            loadAll();
+            showSection('dashboard');
+            toast(`Добро пожаловать, ${currentUser.login}!`, 'ok');
+            return;
+        }
+
+        // Поиск пользователя среди зарегистрированных
+        const user = users.find(u => u.login === login && u.password === password);
+
+        if (user) {
+            currentUser = user;
+            document.getElementById('screen-auth').style.display = 'none';
+            document.getElementById('screen-app').style.display = 'flex';
+
+            const badge = document.getElementById('topbar-role-badge');
+            badge.textContent = user.role === 'admin' ? 'Администратор' : 'Пользователь';
+            badge.className = 'topbar-role ' + user.role;
+
+            // Убираем кнопки создания тикета для администратора
+            if (user.role === 'admin') {
+                document.querySelectorAll('.admin-hide').forEach(el => {
+                    el.style.display = 'none';
+                });
+            } else {
+                document.querySelectorAll('.admin-hide').forEach(el => {
+                    el.style.display = '';
+                });
+            }
+
+            document.getElementById('sidebar').style.display = user.role === 'admin' ? 'flex' : 'none';
+
+            if (user.role === 'admin') {
+                loadAll();
+                showSection('dashboard');
+            } else {
+                showSection('user');
+            }
+
+            toast(`Добро пожаловать, ${user.login}!`, 'ok');
+        } else {
+            toast('Неверный логин или пароль', 'err');
+        }
+    }
+
+    // Сброс пароля
+    function resetPassword() {
+        const login = prompt('Введите ваш логин для сброса пароля:');
+        if (!login) return;
+
+        const users = JSON.parse(localStorage.getItem('issueinsight-users') || '[]');
+        const user = users.find(u => u.login === login);
+
+        if (user) {
+            const newPassword = prompt('Введите новый пароль:');
+            if (newPassword) {
+                user.password = newPassword;
+                localStorage.setItem('issueinsight-users', JSON.stringify(users));
+                toast('Пароль успешно изменен!', 'ok');
+            }
+        } else {
+            toast('Пользователь не найден', 'err');
+        }
+    }
+
+    // Выход из системы
+    function logout() {
+        currentUser = null;
+        document.getElementById('screen-app').style.display = 'none';
+        document.getElementById('screen-auth').style.display = 'flex';
+        toast('Вы вышли из системы', 'ok');
+    }
+
+    // ── DATA ──
+    async function loadAll() {
+        try {
+            // Добавляем лоадер
+            document.getElementById('recent-tbl').innerHTML = `
+                <div class="empty">
+                    <div class="loader" style="margin: 0 auto 20px;"></div>
+                    <h3>Загрузка данных...</h3>
+                    <p>Пожалуйста, подождите</p>
+                </div>
+            `;
+
+            await Promise.all([fetchTickets(), fetchCategories()]);
+            updateNav();
+            renderDashboard();
+
+            // Анимация для улучшения восприятия
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.stat-card');
+                cards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(10px)';
+                        setTimeout(() => {
+                            card.style.transition = 'opacity 0.3s, transform 0.3s';
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        }, 20);
+                    }, index * 100);
+                });
+            }, 300);
+
+        } catch (error) {
+            toast('Ошибка загрузки данных', 'err');
+            console.error(error);
+        }
+    }
+
+    async function fetchTickets() {
+        try {
+            const r = await fetch(`${API}/tickets`);
+            if (!r.ok) throw new Error('Network response was not ok');
+            tickets = await r.json();
+        } catch {
+            toast('Ошибка загрузки тикетов', 'err');
+            throw new Error('Failed to fetch tickets');
+        }
+    }
+
+    async function fetchCategories() {
+        try {
+            const r = await fetch(`${API}/categories`);
+            if (!r.ok) throw new Error('Network response was not ok');
+            categories = await r.json();
+
+            const s = document.getElementById('f-c');
+            s.innerHTML = '<option value="">Все категории</option>' +
+                categories.map(c => `<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
+        } catch {
+            toast('Ошибка загрузки категорий', 'err');
+            throw new Error('Failed to fetch categories');
+        }
+    }
+
+    function updateNav() {
+        document.getElementById('n-total').textContent = tickets.length;
+        document.getElementById('n-open').textContent = tickets.filter(t => t.status === 'OPEN').length;
+        document.getElementById('n-cats').textContent = categories.length;
+    }
+
+    // ── NAVIGATION ──
+    function showSection(name) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+        document.getElementById('section-' + name).classList.add('active');
+
+        const btn = document.querySelector(`[onclick="showSection('${name}')"]`);
+        if (btn) btn.classList.add('active');
+
+        if (name === 'tickets') renderTickets();
+        if (name === 'categories') renderCategories();
+    }
+
+    // ── DASHBOARD ──
+    function renderDashboard() {
+        const c = s => tickets.filter(t => t.status === s).length;
+        document.getElementById('d-open').textContent = c('OPEN');
+        document.getElementById('d-prog').textContent = c('IN_PROGRESS');
+        document.getElementById('d-res').textContent = tickets.filter(t => t.status === 'RESOLVED' || t.status === 'RESOULT').length;
+        document.getElementById('d-cls').textContent = c('CLOSED');
+
+        // Сортируем по дате создания, новые сверху
+        const recentTickets = [...tickets].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 6);
+        document.getElementById('recent-tbl').innerHTML = buildTable(recentTickets);
+    }
+
+    function filterTo(status) {
+        document.getElementById('f-s').value = status;
+        showSection('tickets');
+    }
+
+    // ── TABLE ──
+    function buildTable(list) {
+        if (!list.length) return `
+            <div class="empty">
+                <div class="empty-icon">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h3>Нет тикетов</h3>
+                <p>Попробуйте изменить фильтры или создать новый тикет</p>
+                <div class="empty-action">
+                    <button class="btn btn-primary admin-hide" onclick="openM('m-create')">
+                        <i class="fas fa-plus"></i> Создать тикет
+                    </button>
+                </div>
+            </div>
+        `;
+
+        return `
+            <table>
+                <thead>
+                    <tr>
+                        <th class="sortable ${sortColumn === 'id' ? sortDirection : ''}" onclick="sortTable('id')">ID</th>
+                        <th class="sortable ${sortColumn === 'subject' ? sortDirection : ''}" onclick="sortTable('subject')">Тема</th>
+                        <th class="sortable ${sortColumn === 'customerEmail' ? sortDirection : ''}" onclick="sortTable('customerEmail')">Email</th>
+                        <th class="sortable ${sortColumn === 'status' ? sortDirection : ''}" onclick="sortTable('status')">Статус</th>
+                        <th class="sortable ${sortColumn === 'categoryName' ? sortDirection : ''}" onclick="sortTable('categoryName')">Категория</th>
+                        <th class="sortable ${sortColumn === 'createdAt' ? sortDirection : ''}" onclick="sortTable('createdAt')">Дата</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${list.map(t => `
+                        <tr class="draggable" onclick="viewTicket(${t.id})" draggable="true">
+                            <td><span class="t-id"><i class="fas fa-hashtag"></i> #${t.id}</span></td>
+                            <td>
+                                <div class="t-subject">${esc(t.subject)}</div>
+                                <div class="t-desc">${esc(t.description)}</div>
+                            </td>
+                            <td><span class="t-email"><i class="fas fa-envelope"></i> ${esc(t.customerEmail)}</span></td>
+                            <td><span class="badge badge-${t.status}">${statusLabel(t.status)}</span></td>
+                            <td style="font-size:0.8125rem;font-weight:500">${t.categoryName || '—'}</td>
+                            <td class="t-date"><i class="far fa-clock"></i> ${fmtDate(t.createdAt)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    function sortTable(column) {
+        if (sortColumn === column) {
+            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortColumn = column;
+            sortDirection = 'asc';
+        }
+
+        renderTickets();
+    }
+
+    function renderTickets() {
+        const q = document.getElementById('f-q').value.toLowerCase();
+        const s = document.getElementById('f-s').value;
+        const c = document.getElementById('f-c').value;
+
+        let list = tickets.filter(t => {
+            const txt = (t.subject + ' ' + t.description + ' ' + t.customerEmail).toLowerCase();
+            return (!q || txt.includes(q)) &&
+                (!s || t.status === s) &&
+                (!c || t.categoryName === c);
+        });
+
+        // Сортировка
+        if (sortColumn) {
+            list.sort((a, b) => {
+                if (sortColumn === 'id') {
+                    return sortDirection === 'asc' ? a.id - b.id : b.id - a.id;
+                } else if (sortColumn === 'createdAt') {
+                    return sortDirection === 'asc'
+                        ? new Date(a.createdAt) - new Date(b.createdAt)
+                        : new Date(b.createdAt) - new Date(a.createdAt);
+                } else {
+                    const valA = a[sortColumn] || '';
+                    const valB = b[sortColumn] || '';
+                    return sortDirection === 'asc'
+                        ? valA.localeCompare(valB)
+                        : valB.localeCompare(valA);
+                }
+            });
+        }
+
+        document.getElementById('tickets-tbl').innerHTML = buildTable(list);
+
+        // Добавляем drag & drop
+        setupDragAndDrop();
+    }
+
+    function setupDragAndDrop() {
+        const rows = document.querySelectorAll('.draggable');
+        let draggingRow = null;
+
+        rows.forEach(row => {
+            row.addEventListener('dragstart', function(e) {
+                draggingRow = this;
+                setTimeout(() => this.style.opacity = '0.5', 0);
+            });
+
+            row.addEventListener('dragend', function() {
+                this.style.opacity = '1';
+                draggingRow = null;
+            });
+
+            row.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('draggable-over');
+            });
+
+            row.addEventListener('dragleave', function() {
+                this.classList.remove('draggable-over');
+            });
+
+            row.addEventListener('drop', function() {
+                this.classList.remove('draggable-over');
+
+                if (draggingRow && draggingRow !== this) {
+                    const parent = this.parentNode;
+                    const children = Array.from(parent.children);
+
+                    const fromIndex = children.indexOf(draggingRow);
+                    const toIndex = children.indexOf(this);
+
+                    if (fromIndex < toIndex) {
+                        parent.insertBefore(draggingRow, this.nextSibling);
+                    } else {
+                        parent.insertBefore(draggingRow, this);
+                    }
+
+                    // Здесь можно добавить API-вызов для сохранения нового порядка
+                    toast('Порядок изменен', 'ok');
+                }
+            });
+        });
+    }
+
+    function clearF() {
+        document.getElementById('f-q').value = '';
+        document.getElementById('f-s').value = '';
+        document.getElementById('f-c').value = '';
+        renderTickets();
+    }
+
+    // ── VIEW TICKET ──
+    function viewTicket(id) {
+        const t = tickets.find(x => x.id === id);
+        if (!t) return;
+
+        activeId = id;
+        document.getElementById('m-ticket-title').textContent = `Тикет #${t.id}`;
+
+        const canProg = t.status === 'OPEN';
+        const canRes = t.status === 'IN_PROGRESS';
+        const canCls = t.status !== 'CLOSED';
+
+        document.getElementById('m-ticket-body').innerHTML = `
+            <div class="ticket-meta-grid">
+                <div class="meta-item">
+                    <div class="meta-label">СТАТУС</div>
+                    <div class="meta-val">
+                        <span class="badge badge-${t.status}">${statusLabel(t.status)}</span>
+                    </div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">КАТЕГОРИЯ</div>
+                    <div class="meta-val">${t.categoryName || '—'}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">EMAIL</div>
+                    <div class="meta-val" style="font-size:0.875rem">
+                        <i class="fas fa-envelope"></i> ${esc(t.customerEmail)}
+                    </div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">СОЗДАН</div>
+                    <div class="meta-val" style="font-size:0.875rem">
+                        <i class="far fa-clock"></i> ${fmtDate(t.createdAt)}
+                    </div>
+                </div>
+                ${t.resolvedAt ? `
+                    <div class="meta-item" style="grid-column:1/-1">
+                        <div class="meta-label">ЗАКРЫТ</div>
+                        <div class="meta-val" style="font-size:0.875rem">
+                            <i class="far fa-clock"></i> ${fmtDate(t.resolvedAt)}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+
+            <div style="font-size:0.8125rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">
+                <i class="fas fa-heading"></i> Тема
+            </div>
+            <div style="font-size:1.125rem;font-weight:700;margin-bottom:14px">${esc(t.subject)}</div>
+
+            <div style="font-size:0.8125rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">
+                <i class="fas fa-align-left"></i> Описание
+            </div>
+            <div class="ticket-desc-block">${esc(t.description)}</div>
+
+            <div class="status-actions">
+                <div class="status-actions-title">
+                    <i class="fas fa-bolt"></i> Быстрые действия
+                </div>
+                <div class="status-actions-grid">
+                    <button class="status-action-btn s-progress" ${!canProg ? 'disabled' : ''}
+                            onclick="changeStatus(${t.id},'IN_PROGRESS')">
+                        <i class="fas fa-cog"></i>
+                        <span>В работу</span>
+                    </button>
+                    <button class="status-action-btn s-resolve" ${!canRes ? 'disabled' : ''}
+                            onclick="changeStatus(${t.id},'RESOLVED')">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Решено</span>
+                    </button>
+                    <button class="status-action-btn s-close" ${!canCls ? 'disabled' : ''}
+                            onclick="openCloseModal(${t.id})">
+                        <i class="fas fa-archive"></i>
+                        <span>Закрыть</span>
+                    </button>
+                </div>
+            </div>
+
+            ${t.resolution ? `
+                <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
+                    <div style="font-size:0.8125rem;font-weight:600;color:var(--text-muted);margin-bottom:8px">
+                        <i class="fas fa-comment-dots"></i> Решение
+                    </div>
+                    <div style="background: var(--surface-soft); border-radius: var(--r); padding: 14px; line-height: 1.5;">
+                        ${esc(t.resolution)}
+                    </div>
+                </div>
+            ` : ''}
+        `;
+
+        openM('m-ticket');
+    }
+
+    // ── STATUS CHANGE ──
+    async function changeStatus(id, status) {
+        try {
+            const r = await fetch(`${API}/tickets/change-status?id=${id}&status=${status}`, {
+                method: 'PUT'
+            });
+
+            if (!r.ok) throw new Error('Status change failed');
+
+            toast('Статус обновлён', 'ok');
+            closeM('m-ticket');
+            await loadAll();
+            renderTickets();
+        } catch {
+            toast('Ошибка смены статуса', 'err');
+        }
+    }
+
+    function openCloseModal(id) {
+        activeId = id;
+        document.getElementById('close-res').value = '';
+        openM('m-close');
+    }
+
+    async function confirmClose() {
+        const res = document.getElementById('close-res').value.trim();
+        if (!res) {
+            toast('Введите текст решения', 'warn');
+            return;
+        }
+
+        try {
+            const r = await fetch(`${API}/tickets/close?id=${activeId}&resolution=${encodeURIComponent(res)}`, {
+                method: 'PUT'
+            });
+
+            if (!r.ok) throw new Error('Close ticket failed');
+
+            toast('Тикет закрыт', 'ok');
+            closeM('m-close');
+            closeM('m-ticket');
+            await loadAll();
+            renderTickets();
+        } catch {
+            toast('Ошибка закрытия', 'err');
+        }
+    }
+
+    // ── CREATE TICKET ──
+    async function createTicket() {
+        const sub = document.getElementById('c-sub').value.trim();
+        const desc = document.getElementById('c-desc').value.trim();
+        const email = document.getElementById('c-email').value.trim();
+
+        if (!sub || !desc || !email) {
+            toast('Заполните все обязательные поля', 'warn');
+            return;
+        }
+
+        try {
+            const r = await fetch(`${API}/tickets`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subject: sub, description: desc, email })
+            });
+
+            if (!r.ok) throw new Error('Create ticket failed');
+
+            toast('Тикет создан', 'ok');
+            closeM('m-create');
+
+            // Очистка полей
+            ['c-sub', 'c-desc', 'c-email'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+
+            await loadAll();
+            renderDashboard();
+        } catch {
+            toast('Ошибка создания тикета', 'err');
+        }
+    }
+
+    // ── CATEGORIES ──
+    function renderCategories() {
+        const g = document.getElementById('cats-grid');
+        if (!categories.length) {
+            g.innerHTML = `
+                <div class="empty">
+                    <div class="empty-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h3>Нет категорий</h3>
+                    <p>Создайте первую категорию для организации тикетов</p>
+                    <div class="empty-action">
+                        <button class="btn btn-primary" onclick="openM('m-cat')">
+                            <i class="fas fa-plus"></i> Создать категорию
+                        </button>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        g.innerHTML = categories.map(c => {
+            const cnt = tickets.filter(t => t.categoryName === c.name).length;
+            return `
+                <div class="cat-card">
+                    <div class="cat-name">${esc(c.name)}</div>
+                    <div class="cat-desc">${esc(c.description || 'Без описания')}</div>
+                    <div class="cat-stats">
+                        <div>
+                            <div class="cat-count">${cnt}</div>
+                            <div class="cat-count-lbl">тикетов</div>
+                        </div>
+                        <div style="font-size: 1.25rem; color: var(--text-light);">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function createCategory() {
+        const name = document.getElementById('cat-name').value.trim();
+        const desc = document.getElementById('cat-desc').value.trim();
+
+        if (!name) {
+            toast('Введите название категории', 'warn');
+            return;
+        }
+
+        try {
+            const r = await fetch(`${API}/categories`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description: desc })
+            });
+
+            if (!r.ok) throw new Error('Create category failed');
+
+            toast('Категория создана', 'ok');
+            closeM('m-cat');
+
+            // Очистка полей
+            document.getElementById('cat-name').value = '';
+            document.getElementById('cat-desc').value = '';
+
+            await fetchCategories();
+            renderCategories();
+            updateNav();
+        } catch {
+            toast('Ошибка создания категории', 'err');
+        }
+    }
+
+    // ── ANALYSIS ──
+    async function runAnalysis() {
+        const id = document.getElementById('a-id').value;
+        if (!id) {
+            toast('Введите ID тикета', 'warn');
+            return;
+        }
+
+        const out = document.getElementById('a-out');
+        out.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">
+                    <i class="fas fa-brain" style="color: var(--primary);"></i>
+                </div>
+                <h3>Анализируем...</h3>
+                <p>Это может занять несколько секунд</p>
+            </div>
+        `;
+
+        try {
+            const r = await fetch(`${API}/api/analysis/by-ticket?ticketId=${id}`);
+            if (!r.ok) throw new Error('Analysis failed');
+
+            const res = await r.json();
+            if (!res.length) {
+                out.innerHTML = `
+                    <div class="empty">
+                        <div class="empty-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Нет результатов анализа</h3>
+                        <p>Для этого тикета анализ не проводился</p>
+                    </div>
+                `;
+                return;
+            }
+
+            out.innerHTML = res.map(a => `
+                <div class="table-container" style="padding:20px;margin-bottom:16px">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+                        <div>
+                            <div style="font-size:1.25rem;font-weight:700;margin-bottom:4px; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-microscope" style="color: var(--primary);"></i> ${esc(a.detectedCause)}
+                            </div>
+                            <div style="font-size:0.75rem;color:var(--text-light); display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-hashtag"></i> #${a.id} ·
+                                <i class="far fa-clock"></i> ${fmtDate(a.analiseDate)} ·
+                                <i class="fas fa-robot"></i> ${a.analiseMethod}
+                            </div>
+                        </div>
+                        <div style="text-align:right">
+                            <div style="font-size:2rem;font-weight:700;color:var(--primary)">${a.analiseScore.toFixed(1)}%</div>
+                            <div style="font-size:0.75rem;color:var(--text-light); display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
+                                <i class="fas fa-shield-alt"></i> Уверенность
+                            </div>
+                        </div>
+                    </div>
+                    <div class="conf-wrap">
+                        <div class="conf-header">
+                            <span style="display: flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-shield-alt"></i> Уровень уверенности
+                            </span>
+                            <span>${a.analiseScore.toFixed(1)}%</span>
+                        </div>
+                        <div class="conf-bar">
+                            <div class="conf-fill" style="width:${a.analiseScore}%"></div>
+                        </div>
+                    </div>
+                    <div style="font-size:0.875rem;color:var(--text-muted);margin-top:12px; line-height: 1.5;">
+                        ${esc(a.causeDescription)}
+                    </div>
+                </div>
+            `).join('');
+        } catch {
+            out.innerHTML = `
+                <div class="empty">
+                    <div class="empty-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Анализ не найден</h3>
+                    <p>Проверьте ID тикета или повторите попытку позже</p>
+                </div>
+            `;
+        }
+    }
+
+    // ── USER ──
+    async function userCreate() {
+        const sub = document.getElementById('u-subject').value.trim();
+        const desc = document.getElementById('u-desc').value.trim();
+        const email = document.getElementById('u-email').value.trim();
+
+        if (!sub || !desc || !email) {
+            toast('Заполните все обязательные поля', 'warn');
+            return;
+        }
+
+        try {
+            const r = await fetch(`${API}/tickets`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subject: sub, description: desc, email })
+            });
+
+            if (!r.ok) throw new Error('User create failed');
+
+            const ticket = await r.json();
+            toast('Обращение отправлено', 'ok');
+
+            // Очистка полей
+            ['u-subject', 'u-desc', 'u-email'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+
+            // Показываем статус созданного тикета
+            document.getElementById('u-check-email').value = email;
+            userCheck();
+        } catch {
+            toast('Ошибка отправки обращения', 'err');
+        }
+    }
+
+    async function userCheck() {
+        const email = document.getElementById('u-check-email').value.trim();
+        if (!email) {
+            toast('Введите email', 'warn');
+            return;
+        }
+
+        const out = document.getElementById('u-status-out');
+        out.innerHTML = `
+            <div class="empty" style="padding: 20px 0;">
+                <div class="loader" style="margin: 0 auto 12px;"></div>
+                <h3>Поиск обращений...</h3>
+            </div>
+        `;
+
+        try {
+            const r = await fetch(`${API}/tickets`);
+            const all = await r.json();
+
+            const mine = all.filter(t =>
+                t.customerEmail.toLowerCase() === email.toLowerCase()
+            );
+
+            if (!mine.length) {
+                out.innerHTML = `
+                    <div class="empty">
+                        <div class="empty-icon">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <h3>Обращений не найдено</h3>
+                        <p>Проверьте email или создайте новое обращение</p>
+                    </div>
+                `;
+                return;
+            }
+
+            out.innerHTML = `
+                <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-history"></i> Ваши обращения
+                </div>
+                ${mine.reverse().map(t => `
+                    <div class="ticket-status-row">
+                        <div class="tsr-left">
+                            <div class="tsr-subject">
+                                <i class="fas fa-hashtag" style="color: var(--text-light); margin-right: 4px;"></i> #${t.id} — ${esc(t.subject)}
+                            </div>
+                            <div class="tsr-date">
+                                <i class="far fa-clock" style="color: var(--text-light); margin-right: 4px;"></i> ${fmtDate(t.createdAt)}
+                            </div>
+                        </div>
+                        <span class="badge badge-${t.status}">${statusLabel(t.status)}</span>
+                    </div>
+                `).join('')}
+            `;
+        } catch {
+            out.innerHTML = `
+                <div class="empty">
+                    <div class="empty-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3>Ошибка загрузки</h3>
+                    <p>Не удалось загрузить данные. Попробуйте позже</p>
+                </div>
+            `;
+        }
+    }
+
+    // ── MODALS ──
+    function openM(id) {
+        document.getElementById(id).classList.add('show');
+    }
+
+    function closeM(id) {
+        document.getElementById(id).classList.remove('show');
+    }
+
+    document.querySelectorAll('.overlay').forEach(o => {
+        o.addEventListener('click', e => {
+            if (e.target === o) o.classList.remove('show');
+        });
+    });
+
+    // ── TOAST ──
+    function toast(msg, type = 'ok') {
+        const b = document.getElementById('toasts');
+        const el = document.createElement('div');
+        el.className = `toast ${type}`;
+
+        let icon = 'info-circle';
+        if (type === 'ok') icon = 'check-circle';
+        if (type === 'err') icon = 'exclamation-circle';
+        if (type === 'warn') icon = 'exclamation-triangle';
+
+        el.innerHTML = `
+            <div class="toast-icon">
+                <i class="fas fa-${icon}"></i>
+            </div>
+            <div>${msg}</div>
+        `;
+
+        b.appendChild(el);
+        setTimeout(() => el.classList.add('show'), 50);
+        setTimeout(() => {
+            el.classList.remove('show');
+            setTimeout(() => el.remove(), 400);
+        }, 3000);
+    }
+
+    // ── HELPERS ──
+    function statusLabel(s) {
+        return {
+            OPEN: 'Открыт',
+            IN_PROGRESS: 'В работе',
+            RESOLVED: 'Решён',
+            RESOULT: 'Решён',
+            CLOSED: 'Закрыт'
+        }[s] || s;
+    }
+
+    function esc(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
+    function fmtDate(d) {
+        if (!d) return '—';
+        return new Date(d).toLocaleString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    // Инициализация при загрузке
+    document.addEventListener('DOMContentLoaded', () => {
+        initTheme();
+
+        // Проверяем, есть ли зарегистрированные пользователи
+        let users = JSON.parse(localStorage.getItem('issueinsight-users') || '[]');
+
+        // Если пользователей нет, добавляем только администратора DSatdarov
+        if (users.length === 0) {
+            users = [
+                {
+                    login: 'DSatdarov',
+                    password: 'Dsatdarov-19',
+                    role: 'admin',
+                    createdAt: new Date().toISOString()
+                }
+            ];
+            localStorage.setItem('issueinsight-users', JSON.stringify(users));
+        }
+
+        // Анимация для логотипа
+        const logo = document.querySelector('.auth-logo-icon');
+        if (logo) {
+            logo.style.animation = 'none';
+            setTimeout(() => {
+                logo.style.animation = 'pulse 3s infinite';
+            }, 10);
+        }
+    });
+
+    // Анимация для пульсации логотипа
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+        .auth-logo-icon {
+            animation: pulse 3s infinite;
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+</body>
+</html>

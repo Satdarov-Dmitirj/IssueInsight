@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: notification-service
+
+  kafka:
+    consumer:
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+      group-id: notification-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:dmitrijsatdarov@gmail.com}
+    password: ${MAIL_PASSWORD:DMS_55455999}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+mail:
+  service:
+    enabled: ${MAIL_ENABLED:true}
+    from: ${MAIL_FROM:dmitrijsatdarov@gmail.com}
+
+server:
+  port: 8081
+
+logging:
+  level:
+    ru.natification: DEBUG
