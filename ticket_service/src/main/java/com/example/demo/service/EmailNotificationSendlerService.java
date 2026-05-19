@@ -17,7 +17,7 @@ public class EmailNotificationSendlerService {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Value("kafka.topics.email-notifications")
+    @Value("${kafka.topics.email-notifications:email_notifications}")
     private String emailTopic;
 
     public void sendTicketCreatedNotification(String email, String ticketId, String subject, String status) {
