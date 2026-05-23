@@ -1,6 +1,6 @@
 databaseChangeLog:
   - include:
-      file: 001-create-user-table.yaml
+      file: 001-create-categories-table.yaml
       relativeToChangelogFile: true
   - include:
       file: 001_create_analysis_table.sql
@@ -16,4 +16,7 @@ databaseChangeLog:
       relativeToChangelogFile: true
   - include:
       file: 008-expand-keywords.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 009-fix-tickets-table.sql
       relativeToChangelogFile: true
